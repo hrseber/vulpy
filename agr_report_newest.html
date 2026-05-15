@@ -1,578 +1,691 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AGR Compliance Posture Assessment - ATO Evidence Package</title>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #0f172a; color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; padding: 2rem; line-height: 1.6; }
-.container { max-width: 1400px; margin: 0 auto; }
-.header { text-align: center; padding: 3rem 2rem; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #334155; border-radius: 12px; margin-bottom: 2rem; }
-.header h1 { font-size: 2rem; color: #38bdf8; letter-spacing: 2px; margin-bottom: 1.5rem; text-transform: uppercase; }
-.header-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; text-align: left; max-width: 1000px; margin: 0 auto; }
-.header-meta div { background: #0f172a; padding: 0.75rem 1rem; border-radius: 6px; border-left: 3px solid #38bdf8; }
-.header-meta label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; }
-.header-meta span { font-size: 0.95rem; color: #f1f5f9; font-weight: 500; }
-.summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
-.stat-box { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; text-align: center; }
-.stat-box .value { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem; }
-.stat-box .label { font-size: 0.85rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-.stat-box.total .value { color: #38bdf8; }
-.stat-box.passed .value { color: #22c55e; }
-.stat-box.failed .value { color: #ef4444; }
-.stat-box.score .value { color: #f59e0b; }
-.section { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; }
-.section h2 { color: #38bdf8; font-size: 1.3rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #334155; }
-.section h3 { color: #e2e8f0; font-size: 1.1rem; margin: 1.5rem 0 1rem; }
-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-th { background: #0f172a; color: #94a3b8; padding: 0.75rem 0.5rem; text-align: left; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.72rem; border-bottom: 2px solid #334155; }
-td { padding: 0.75rem 0.5rem; border-bottom: 1px solid #263548; vertical-align: top; }
-tr:hover td { background: #263548; }
-.badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-.badge-critical { background: #ef4444; color: #fff; }
-.badge-high { background: #f97316; color: #fff; }
-.badge-medium { background: #f59e0b; color: #000; }
-.badge-low { background: #6366f1; color: #fff; }
-.badge-pass { background: #22c55e; color: #000; }
-.badge-fail { background: #ef4444; color: #fff; }
-.badge-na { background: #475569; color: #e2e8f0; }
-.badge-uta { background: #7c3aed; color: #fff; }
-.residual-section { background: #1a1420; border: 1px solid #dc2626; }
-.residual-section h2 { color: #ef4444; }
-.control-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 0.5rem; margin-top: 1rem; }
-.control-cell { padding: 0.4rem; text-align: center; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
-.control-covered { background: #166534; color: #86efac; }
-.control-gap { background: #7f1d1d; color: #fca5a5; }
-.control-partial { background: #78350f; color: #fcd34d; }
-.control-na { background: #1e293b; color: #64748b; border: 1px solid #334155; }
-.footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.8rem; border-top: 1px solid #334155; margin-top: 2rem; }
-.footer strong { color: #ef4444; }
-.fix-text { color: #94a3b8; font-size: 0.78rem; max-width: 260px; line-height: 1.4; }
-.policy-box { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 1rem; margin: 0.5rem 0; }
-.policy-box code { color: #38bdf8; font-size: 0.8rem; font-family: 'Courier New', monospace; white-space: pre-wrap; display: block; margin-top: 0.5rem; }
-.diff-box { background: #0a0f1a; border: 1px solid #1e3a5f; border-radius: 6px; padding: 1rem; margin: 0.75rem 0; font-family: 'Courier New', monospace; font-size: 0.78rem; }
-.diff-add { color: #22c55e; }
-.diff-remove { color: #ef4444; }
-.diff-context { color: #94a3b8; }
-.alert-banner { background: linear-gradient(90deg, #7f1d1d, #1a0a0a); border: 1px solid #ef4444; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; color: #fca5a5; font-weight: 600; }
-.pass-banner { background: linear-gradient(90deg, #14532d, #052e16); border: 1px solid #22c55e; border-radius: 8px; padding: 0.75rem 1.5rem; margin-bottom: 1rem; color: #86efac; }
-@media (max-width: 768px) { .summary-bar { grid-template-columns: repeat(2, 1fr); } .header-meta { grid-template-columns: 1fr; } }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGR Compliance Posture Assessment - Pipeline: chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: #1e293b;
+            border-radius: 12px;
+            border: 2px solid #334155;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #38bdf8;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+
+        .header-info-item {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #38bdf8;
+        }
+
+        .header-info-item strong {
+            color: #38bdf8;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-box {
+            background: #7c2d12;
+            border: 2px solid #ea580c;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            color: #fed7aa;
+        }
+
+        .alert-box h2 {
+            color: #fed7aa;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-box h2::before {
+            content: "⚠";
+            font-size: 1.5rem;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-box {
+            background: #1e293b;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #334155;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #38bdf8;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px solid #334155;
+        }
+
+        h2 {
+            color: #38bdf8;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #334155;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        thead {
+            background: #0f172a;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            color: #38bdf8;
+            font-weight: 600;
+            border-bottom: 2px solid #334155;
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        tbody tr:hover {
+            background: #0f172a;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-critical {
+            background: #7f1d1d;
+            color: #fca5a5;
+            border: 1px solid #ef4444;
+        }
+
+        .badge-high {
+            background: #7c2d12;
+            color: #fdba74;
+            border: 1px solid #f97316;
+        }
+
+        .badge-medium {
+            background: #78350f;
+            color: #fcd34d;
+            border: 1px solid #f59e0b;
+        }
+
+        .badge-pass {
+            background: #14532d;
+            color: #86efac;
+            border: 1px solid #22c55e;
+        }
+
+        .badge-fail {
+            background: #7f1d1d;
+            color: #fca5a5;
+            border: 1px solid #ef4444;
+        }
+
+        .badge-unable {
+            background: #1e3a8a;
+            color: #93c5fd;
+            border: 1px solid #3b82f6;
+        }
+
+        .framework-cell {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .control-id {
+            font-family: 'Courier New', monospace;
+            background: #0f172a;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            display: inline-block;
+            margin: 0.1rem;
+        }
+
+        .recommendation {
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background: #0f172a;
+            border-left: 3px solid #38bdf8;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .control-coverage-box {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #334155;
+        }
+
+        .control-coverage-box.covered {
+            border-color: #22c55e;
+            background: #14532d;
+        }
+
+        .control-coverage-box.uncovered {
+            border-color: #ef4444;
+            background: #7f1d1d;
+        }
+
+        .control-coverage-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
+        .control-coverage-id {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            border-top: 2px solid #334155;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        footer strong {
+            color: #38bdf8;
+        }
+
+        .policies-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .policies-list li {
+            padding: 0.75rem;
+            background: #0f172a;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            border-left: 3px solid #38bdf8;
+        }
+
+        .policies-list li strong {
+            color: #38bdf8;
+            font-family: 'Courier New', monospace;
+        }
+
+        .blocker-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .blocker-list li {
+            padding: 0.75rem;
+            background: #0f172a;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            border-left: 3px solid #ef4444;
+            color: #fca5a5;
+        }
+
+        .blocker-list li::before {
+            content: "✗";
+            margin-right: 0.5rem;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
+    <div class="container">
+        <header>
+            <h1>Compliance Posture Assessment</h1>
+            <p style="font-size: 1.2rem; color: #94a3b8; margin-top: 0.5rem;">Automated Governance & Risk (AGR) Assessor Report</p>
 
-<!-- HEADER -->
-<div class="header">
-  <h1>&#9679; Compliance Posture Assessment</h1>
-  <p style="color:#94a3b8; margin-bottom:1.5rem; font-size:0.9rem;">ATO Evidence Package &mdash; AGR Assessor Agent</p>
-  <div class="header-meta">
-    <div><label>Account</label><span>NjU5NDczNGEtMTE1My00Mz</span></div>
-    <div><label>Organization</label><span>default</span></div>
-    <div><label>Project</label><span>LFG</span></div>
-    <div><label>Assessed Pipeline</label><span>Semgrep (chat)</span></div>
-    <div><label>Execution ID</label><span>j0S-kylNRJOQCWxgiYB--Q</span></div>
-    <div><label>Run Sequence</label><span>#1</span></div>
-    <div><label>Timestamp</label><span>2026-05-15T19:20:00Z</span></div>
-    <div><label>Original Trigger</label><span>Rudy Seber</span></div>
-    <div><label>Assessment By</label><span>AGR Assessor Agent (external) &mdash; Rudy Seber</span></div>
-    <div><label>Frameworks</label><span>SOC2, NIST 800-53, SLSA, DoD cATO, PCI-DSS 4.0</span></div>
-  </div>
-</div>
+            <div class="header-info">
+                <div class="header-info-item">
+                    <strong>Account</strong>
+                    NjU5NDczNGEtMTE1My00Mz
+                </div>
+                <div class="header-info-item">
+                    <strong>Organization</strong>
+                    default
+                </div>
+                <div class="header-info-item">
+                    <strong>Project</strong>
+                    LFG
+                </div>
+                <div class="header-info-item">
+                    <strong>Assessed Pipeline</strong>
+                    chat
+                </div>
+                <div class="header-info-item">
+                    <strong>Assessment Triggered By</strong>
+                    Rudy Seber (AGR Assessor Agent)
+                </div>
+                <div class="header-info-item">
+                    <strong>Timestamp</strong>
+                    2026-05-15 19:33 UTC
+                </div>
+                <div class="header-info-item">
+                    <strong>Assessor Execution ID</strong>
+                    bPMWHbifRoS0aaF25jKBYA
+                </div>
+                <div class="header-info-item">
+                    <strong>Target Frameworks</strong>
+                    SOC2, NIST 800-53, SLSA, DoD cATO, PCI-DSS 4.0
+                </div>
+            </div>
+        </header>
 
-<!-- SUMMARY BAR -->
-<div class="summary-bar">
-  <div class="stat-box total"><div class="value">14</div><div class="label">Total Checks</div></div>
-  <div class="stat-box passed"><div class="value">2</div><div class="label">Passed</div></div>
-  <div class="stat-box failed"><div class="value">9</div><div class="label">Failed</div></div>
-  <div class="stat-box score"><div class="value">18%</div><div class="label">Structural Score</div></div>
-</div>
+        <div class="alert-box">
+            <h2>Assessment Status: Unable to Complete</h2>
+            <p><strong>Reason:</strong> Harness MCP tools not available in execution environment. Cannot retrieve target pipeline YAML or execution data.</p>
+            <p style="margin-top: 1rem;"><strong>Impact:</strong> All 14 compliance controls marked as UNABLE TO ASSESS. This report documents the assessment framework and required controls but cannot provide actual compliance status for pipeline "chat".</p>
+        </div>
 
-<!-- CRITICAL ALERT -->
-<div class="alert-banner">
-  &#9888; CRITICAL FINDING: No secret scanning detected. Pipeline clones vulpy codebase without Gitleaks. 26 Semgrep findings (6 HIGH, 18 MEDIUM) shipped without a blocking severity gate. 0 OPA policies evaluated.
-</div>
+        <div class="summary-stats">
+            <div class="stat-box">
+                <span class="stat-value">14</span>
+                <span class="stat-label">Total Checks</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value" style="color: #22c55e;">0</span>
+                <span class="stat-label">Passed</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value" style="color: #ef4444;">0</span>
+                <span class="stat-label">Failed</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value" style="color: #3b82f6;">14</span>
+                <span class="stat-label">Unable to Assess</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value" style="color: #64748b;">N/A</span>
+                <span class="stat-label">Compliance Score</span>
+            </div>
+        </div>
 
-<!-- PASS 1: STRUCTURAL ASSESSMENT -->
-<div class="section">
-  <h2>&#128196; Structural Assessment (Pass 1) &mdash; 14-Control Checklist</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Check</th>
-        <th>Severity</th>
-        <th>Status</th>
-        <th>SOC 2</th>
-        <th>NIST 800-53</th>
-        <th>SLSA</th>
-        <th>DoD cATO</th>
-        <th>PCI DSS</th>
-        <th>Recommended Fix</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>1</td>
-        <td><strong>SBOM Generation</strong></td>
-        <td><span class="badge badge-high">HIGH</span></td>
-        <td><span class="badge badge-fail">FAIL</span></td>
-        <td>CC7.1</td>
-        <td>SR-4, SA-11</td>
-        <td>L1</td>
-        <td>3.1</td>
-        <td>6.3.2</td>
-        <td class="fix-text">No SscaOrchestration step. Add SBOM Orchestration step after container build. Auto-remediation available.</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td><strong>SBOM Policy Enforcement</strong></td>
-        <td><span class="badge badge-high">HIGH</span></td>
-        <td><span class="badge badge-fail">FAIL</span></td>
-        <td>CC7.2</td>
-        <td>SR-3, SR-11</td>
-        <td>L2</td>
-        <td>3.1</td>
-        <td>6.3.1</td>
-        <td class="fix-text">No SscaEnforcement step. Add after SBOM Orchestration with deny/allow lists. Auto-remediation available.</td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td><strong>Artifact Signing</strong></td>
-        <td><span class="badge badge-high">HIGH</span></td>
-        <td><span class="badge badge-fail">FAIL</span></td>
-        <td>CC6.1</td>
-        <td>SI-7, SA-12</td>
-        <td>L2–L3</td>
-        <td>3.1</td>
-        <td>6.2</td>
-        <td class="fix-text">No cosign/SLSA attestation. Enable on SSCA Orchestration step with key pair when container build is introduced.</td>
-      </tr>
-      <tr style="background:#0d1f0f;">
-        <td>4</td>
-        <td><strong>SAST</strong></td>
-        <td><span class="badge badge-na">N/A</span></td>
-        <td><span class="badge badge-pass">PASS</span></td>
-        <td>CC7.1, CC8.1</td>
-        <td>SA-11(1), RA-5</td>
-        <td>&mdash;</td>
-        <td>3.1 CNAPP</td>
-        <td>6.2.3, 6.5.1</td>
-        <td class="fix-text">Semgrep_1 present (orchestration mode). &#10003; Add fail_on_severity to harden the gate.</td>
-      </tr>
-      <tr>
-        <td>5</td>
-        <td><strong>SCA</strong></td>
-        <td><span class="badge badge-high">HIGH</span></td>
-        <td><span class="badge badge-fail">FAIL</span></td>
-        <td>CC7.1</td>
-        <td>RA-5, SR-4</td>
-        <td>L1</td>
-        <td>3.1 CNAPP</td>
-        <td>6.3.1</td>
-        <td class="fix-text">No SCA scanner. Add OsvScanner or OWASPDependencyCheck STO step. vulpy has known vulnerable dependencies. Auto-remediation available.</td>
-      </tr>
-      <tr style="background:#200a0a;">
-        <td>6</td>
-        <td><strong>Secret Detection</strong></td>
-        <td><span class="badge badge-critical">CRITICAL</span></td>
-        <td><span class="badge badge-fail">FAIL</span></td>
-        <td>CC6.1, CC6.7</td>
-        <td>IA-5, SC-28</td>
-        <td>&mdash;</td>
-        <td>1.0 CONMON</td>
-        <td>8.2, 8.6</td>
-        <td class="fix-text">CRITICAL: No Gitleaks step. Pipeline clones vulpy with zero credential scanning. Add Gitleaks as FIRST CI step with fail_on_severity: critical. Auto-remediation available.</td>
-      </tr>
-      <tr>
-        <td>7</td>
-        <td><strong>Container Scanning</strong></td>
-        <td><span class="badge badge-na">N/A</span></td>
-        <td><span class="badge badge-na">N/A</span></td>
-        <td>CC7.1</td>
-        <td>RA-5, SI-2</td>
-        <td>&mdash;</td>
-        <td>3.1 CNAPP</td>
-        <td>6.3.1, 6.2.4</td>
-        <td class="fix-text">No container build step &mdash; control not applicable. Add AquaTrivy if build step is introduced.</td>
-      </tr>
-      <tr>
-        <td>8</td>
-        <td><strong>IaC Scanning</strong></td>
-        <td><span class="badge badge-na">N/A</span></td>
-        <td><span class="badge badge-na">N/A</span></td>
-        <td>CC6.1, CC7.1</td>
-        <td>CM-2, CM-6</td>
-        <td>&mdash;</td>
-        <td>3.1</td>
-        <td>2.2</td>
-        <td class="fix-text">No IaC stages &mdash; control not applicable to current pipeline scope.</td>
-      </tr>
-      <tr>
-        <td>9</td>
-        <td><strong>OPA Policy Set (On Run)</strong></td>
-        <td><span class="badge badge-high">HIGH</span></td>
-        <td><span class="badge badge-fail">FAIL</span></td>
-        <td>CC5.2, CC8.1</td>
-        <td>CA-7, CM-3</td>
-        <td>&mdash;</td>
-        <td>3.2</td>
-        <td>6.5, 12.1</td>
-        <td class="fix-text">Zero OPA policies evaluated in execution. Attach Policy Set with On Run + Error and Exit. Auto-remediation available.</td>
-      </tr>
-      <tr>
-        <td>10</td>
-        <td><strong>OPA Policy Set (On Save)</strong></td>
-        <td><span class="badge badge-high">HIGH</span></td>
-        <td><span class="badge badge-fail">FAIL</span></td>
-        <td>CC8.1</td>
-        <td>CM-3, CM-4</td>
-        <td>&mdash;</td>
-        <td>3.2</td>
-        <td>6.4</td>
-        <td class="fix-text">No On Save OPA policy set. Attach policy set with On Pipeline Save trigger. Auto-remediation available.</td>
-      </tr>
-      <tr>
-        <td>11</td>
-        <td><strong>Severity Thresholds</strong></td>
-        <td><span class="badge badge-high">HIGH</span></td>
-        <td><span class="badge badge-fail">FAIL</span></td>
-        <td>CC7.2, CC7.3</td>
-        <td>RA-5, SI-2</td>
-        <td>&mdash;</td>
-        <td>3.2</td>
-        <td>6.3.1, 11.3</td>
-        <td class="fix-text">Semgrep_1 mode=orchestration has no fail_on_severity. 6 HIGH findings shipped. Add fail_on_severity: high to spec.advanced. Auto-remediation available.</td>
-      </tr>
-      <tr>
-        <td>12</td>
-        <td><strong>Approval Gate (Pre-Prod)</strong></td>
-        <td><span class="badge badge-na">N/A</span></td>
-        <td><span class="badge badge-uta">UNABLE</span></td>
-        <td>CC5.2, CC8.1</td>
-        <td>CM-3(2), CA-6</td>
-        <td>&mdash;</td>
-        <td>3.2</td>
-        <td>6.4.1, 6.4.2</td>
-        <td class="fix-text">No CD/deployment stages present. Control not applicable to CI-only pipeline scope.</td>
-      </tr>
-      <tr style="background:#0d1f0f;">
-        <td>13</td>
-        <td><strong>Audit Trail</strong></td>
-        <td><span class="badge badge-na">N/A</span></td>
-        <td><span class="badge badge-pass">PASS</span></td>
-        <td>CC4.1, CC7.3</td>
-        <td>AU-2, AU-3, AU-6</td>
-        <td>L1</td>
-        <td>1.0</td>
-        <td>10.1, 10.2</td>
-        <td class="fix-text">Account-level audit trail active. Execution fully logged with trigger, commit, and timing metadata. &#10003;</td>
-      </tr>
-      <tr>
-        <td>14</td>
-        <td><strong>Evidence Export</strong></td>
-        <td><span class="badge badge-medium">MEDIUM</span></td>
-        <td><span class="badge badge-fail">FAIL</span></td>
-        <td>CC4.1, CC7.4</td>
-        <td>CA-2, CA-7(1)</td>
-        <td>L2</td>
-        <td>1.0</td>
-        <td>12.4</td>
-        <td class="fix-text">No evidence export step. Scan results exist in STO but not exported externally. Add Run step to upload SARIF to artifact registry.</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+        <div class="section">
+            <h2>Structural Assessment (Pass 1) - 14 Control Framework</h2>
+            <p style="color: #94a3b8; margin-bottom: 1.5rem;">Evaluates whether required security controls are correctly designed and configured in the pipeline YAML.</p>
 
-<!-- PASS 2: RESIDUAL RISK -->
-<div class="section residual-section">
-  <h2>&#9888; Residual Risk Assessment (Pass 2) &mdash; Execution j0S-kylNRJOQCWxgiYB--Q</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th style="width: 20%;">Check</th>
+                        <th style="width: 10%;">Severity</th>
+                        <th style="width: 10%;">Status</th>
+                        <th style="width: 35%;">Framework Controls</th>
+                        <th style="width: 20%;">Expected Control</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><strong>SBOM Generation</strong><br><span style="color: #64748b; font-size: 0.85rem;">Software Supply Chain</span></td>
+                        <td><span class="badge badge-high">HIGH</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC7.1</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">SR-4</span> <span class="control-id">SA-11</span></div>
+                            <div><strong>SLSA:</strong> <span class="control-id">L1</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">3.1</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">6.3.2</span></div>
+                        </td>
+                        <td>SBOM Orchestration step (SCS module) after build/push</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><strong>SBOM Policy Enforcement</strong><br><span style="color: #64748b; font-size: 0.85rem;">Software Supply Chain</span></td>
+                        <td><span class="badge badge-high">HIGH</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC7.2</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">SR-3</span> <span class="control-id">SR-11</span></div>
+                            <div><strong>SLSA:</strong> <span class="control-id">L2</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">3.1</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">6.3.1</span></div>
+                        </td>
+                        <td>SBOM Policy Enforcement step with deny/allow lists</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>Artifact Signing</strong><br><span style="color: #64748b; font-size: 0.85rem;">Software Supply Chain</span></td>
+                        <td><span class="badge badge-high">HIGH</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC6.1</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">SI-7</span> <span class="control-id">SA-12</span></div>
+                            <div><strong>SLSA:</strong> <span class="control-id">L2-L3</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">3.1</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">6.2</span></div>
+                        </td>
+                        <td>SBOM attestation enabled with cosign/SLSA provenance</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><strong>SAST Scanning</strong><br><span style="color: #64748b; font-size: 0.85rem;">Security Testing</span></td>
+                        <td><span class="badge badge-high">HIGH</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC7.1</span> <span class="control-id">CC8.1</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">SA-11(1)</span> <span class="control-id">RA-5</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">3.1 CNAPP</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">6.2.3</span> <span class="control-id">6.5.1</span></div>
+                        </td>
+                        <td>STO SAST step (Semgrep, Checkmarx, SonarQube)</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><strong>SCA Scanning</strong><br><span style="color: #64748b; font-size: 0.85rem;">Security Testing</span></td>
+                        <td><span class="badge badge-high">HIGH</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC7.1</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">RA-5</span> <span class="control-id">SR-4</span></div>
+                            <div><strong>SLSA:</strong> <span class="control-id">L1</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">3.1 CNAPP</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">6.3.1</span></div>
+                        </td>
+                        <td>STO SCA step (OWASP Dep Check, OSV, Snyk)</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><strong>Secret Detection</strong><br><span style="color: #64748b; font-size: 0.85rem;">Security Testing</span></td>
+                        <td><span class="badge badge-critical">CRITICAL</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC6.1</span> <span class="control-id">CC6.7</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">IA-5</span> <span class="control-id">SC-28</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">1.0 CONMON</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">8.2</span> <span class="control-id">8.6</span></div>
+                        </td>
+                        <td>STO secret scan (Gitleaks)</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><strong>Container Scanning</strong><br><span style="color: #64748b; font-size: 0.85rem;">Security Testing</span></td>
+                        <td><span class="badge badge-high">HIGH</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC7.1</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">RA-5</span> <span class="control-id">SI-2</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">3.1 CNAPP</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">6.3.1</span> <span class="control-id">6.2.4</span></div>
+                        </td>
+                        <td>STO container scan (Aqua Trivy, Grype) - if container build exists</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><strong>IaC Scanning</strong><br><span style="color: #64748b; font-size: 0.85rem;">Security Testing</span></td>
+                        <td><span class="badge badge-medium">MEDIUM</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC6.1</span> <span class="control-id">CC7.1</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">CM-2</span> <span class="control-id">CM-6</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">3.1</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">2.2</span></div>
+                        </td>
+                        <td>STO IaC scan (Checkov) - if IaC stages exist</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><strong>OPA Policy Set (On Run)</strong><br><span style="color: #64748b; font-size: 0.85rem;">Governance & Policy</span></td>
+                        <td><span class="badge badge-high">HIGH</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC5.2</span> <span class="control-id">CC8.1</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">CA-7</span> <span class="control-id">CM-3</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">3.2</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">6.5</span> <span class="control-id">12.1</span></div>
+                        </td>
+                        <td>OPA Policy Set with On Run + Error and Exit</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td><strong>OPA Policy Set (On Save)</strong><br><span style="color: #64748b; font-size: 0.85rem;">Governance & Policy</span></td>
+                        <td><span class="badge badge-medium">MEDIUM</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC8.1</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">CM-3</span> <span class="control-id">CM-4</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">3.2</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">6.4</span></div>
+                        </td>
+                        <td>OPA Policy Set with On Save</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td><strong>Severity Thresholds</strong><br><span style="color: #64748b; font-size: 0.85rem;">Governance & Policy</span></td>
+                        <td><span class="badge badge-high">HIGH</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC7.2</span> <span class="control-id">CC7.3</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">RA-5</span> <span class="control-id">SI-2</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">3.2</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">6.3.1</span> <span class="control-id">11.3</span></div>
+                        </td>
+                        <td>STO steps with fail_on_severity=critical/high</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td><strong>Approval Gate Before Prod</strong><br><span style="color: #64748b; font-size: 0.85rem;">Deployment</span></td>
+                        <td><span class="badge badge-critical">CRITICAL</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC5.2</span> <span class="control-id">CC8.1</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">CM-3(2)</span> <span class="control-id">CA-6</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">3.2</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">6.4.1</span> <span class="control-id">6.4.2</span></div>
+                        </td>
+                        <td>Approval step/stage before prod deployment - if CD stages exist</td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td><strong>Audit Trail</strong><br><span style="color: #64748b; font-size: 0.85rem;">Audit & Evidence</span></td>
+                        <td><span class="badge badge-high">HIGH</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC4.1</span> <span class="control-id">CC7.3</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">AU-2</span> <span class="control-id">AU-3</span> <span class="control-id">AU-6</span></div>
+                            <div><strong>SLSA:</strong> <span class="control-id">L1</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">1.0</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">10.1</span> <span class="control-id">10.2</span></div>
+                        </td>
+                        <td>Project/account audit trail enabled</td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td><strong>Evidence Export</strong><br><span style="color: #64748b; font-size: 0.85rem;">Audit & Evidence</span></td>
+                        <td><span class="badge badge-medium">MEDIUM</span></td>
+                        <td><span class="badge badge-unable">UNABLE TO ASSESS</span></td>
+                        <td class="framework-cell">
+                            <div><strong>SOC2:</strong> <span class="control-id">CC4.1</span> <span class="control-id">CC7.4</span></div>
+                            <div><strong>NIST:</strong> <span class="control-id">CA-2</span> <span class="control-id">CA-7(1)</span></div>
+                            <div><strong>SLSA:</strong> <span class="control-id">L2</span></div>
+                            <div><strong>DoD cATO:</strong> <span class="control-id">1.0</span></div>
+                            <div><strong>PCI-DSS:</strong> <span class="control-id">12.4</span></div>
+                        </td>
+                        <td>Scan results, SBOMs, and policy evals captured</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-  <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:1rem; margin-bottom:1.5rem;">
-    <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:1rem;text-align:center;">
-      <div style="font-size:1.8rem;font-weight:700;color:#ef4444;">0</div>
-      <div style="font-size:0.75rem;color:#94a3b8;text-transform:uppercase;">Critical CVEs Shipped</div>
+        <div class="section">
+            <h2>Residual Risk Assessment (Pass 2)</h2>
+            <p style="color: #94a3b8; margin-bottom: 1rem;">Analyzes actual security findings from the latest pipeline execution to identify vulnerabilities that shipped despite controls.</p>
+
+            <div class="alert-box" style="background: #1e3a8a; border-color: #3b82f6;">
+                <h2 style="color: #93c5fd;">Unable to Assess Residual Risk</h2>
+                <p><strong>Reason:</strong> Cannot retrieve execution data without Harness MCP tools.</p>
+                <p style="margin-top: 1rem;"><strong>Expected Data Sources:</strong></p>
+                <ul style="margin-left: 2rem; margin-top: 0.5rem; color: #93c5fd;">
+                    <li>STO vulnerability findings (by severity)</li>
+                    <li>STO secret detection results</li>
+                    <li>STO misconfiguration findings</li>
+                    <li>SCS SBOM contents and policy enforcement results</li>
+                    <li>OPA policy evaluation results (passed, warned, failed)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Generated OPA Policies</h2>
+            <p style="color: #94a3b8; margin-bottom: 1rem;">Auto-generated Rego policies for missing controls (5 sample policies created as framework demonstration).</p>
+
+            <ul class="policies-list">
+                <li>
+                    <strong>sbom_generation_required.rego</strong><br>
+                    <span style="color: #94a3b8;">Enforces SBOM Orchestration step after build/push | Controls: NIST SR-4, SA-11 | Severity: HIGH</span>
+                </li>
+                <li>
+                    <strong>secret_scanning_required.rego</strong><br>
+                    <span style="color: #94a3b8;">Mandates secret detection scanning (Gitleaks) | Controls: NIST IA-5, SC-28 | Severity: CRITICAL</span>
+                </li>
+                <li>
+                    <strong>approval_gate_required.rego</strong><br>
+                    <span style="color: #94a3b8;">Requires approval before production deployment | Controls: NIST CM-3(2), CA-6 | Severity: CRITICAL</span>
+                </li>
+                <li>
+                    <strong>sast_scanning_required.rego</strong><br>
+                    <span style="color: #94a3b8;">Ensures SAST scanning for code vulnerabilities | Controls: NIST SA-11(1), RA-5 | Severity: HIGH</span>
+                </li>
+                <li>
+                    <strong>opa_policy_enforcement.rego</strong><br>
+                    <span style="color: #94a3b8;">Validates OPA policy sets for On Save and On Run | Controls: NIST CA-7, CM-3, CM-4 | Severity: HIGH</span>
+                </li>
+            </ul>
+
+            <div class="recommendation" style="margin-top: 1.5rem;">
+                <strong>📁 Policy Location:</strong> .agent/output/generated-policies/<br>
+                <strong>📋 Import Instructions:</strong> These policies can be imported into Harness OPA using the Policy Management API or UI
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Assessment Blockers</h2>
+            <p style="color: #94a3b8; margin-bottom: 1rem;">Technical limitations that prevented complete assessment.</p>
+
+            <ul class="blocker-list">
+                <li>Harness MCP tools not configured in execution environment</li>
+                <li>No HARNESS_PLATFORM_API_KEY or HARNESS_API_KEY available for direct API access</li>
+                <li>PLUGIN_HARNESS_CONNECTOR is an LLM connector reference, not a Harness PAT (per instructions)</li>
+                <li>Cannot retrieve target pipeline "chat" YAML structure</li>
+                <li>Cannot retrieve latest execution data for residual risk assessment</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Recommendations for Future Assessments</h2>
+            <div class="recommendation">
+                <strong>1. Configure Harness MCP Server</strong><br>
+                Add Harness MCP server configuration to ~/.config/claude/mcp_settings.json or project-specific settings to enable pipeline and execution data retrieval.
+            </div>
+            <div class="recommendation">
+                <strong>2. Provide API Authentication</strong><br>
+                Set HARNESS_PLATFORM_API_KEY environment variable with appropriate read permissions for pipelines, executions, and STO/SCS data.
+            </div>
+            <div class="recommendation">
+                <strong>3. Verify Permissions</strong><br>
+                Ensure AGR Assessor Agent service account has: Pipeline View, Execution View, STO View, SCS View, Policy View permissions in target project.
+            </div>
+            <div class="recommendation">
+                <strong>4. Re-run Assessment</strong><br>
+                Once MCP tools are available, re-trigger this assessment to obtain actual compliance status for pipeline "chat".
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Generated by AGR Assessor Agent | Harness Automated Governance & Risk Framework</strong></p>
+            <p>ATO Evidence Package | Do Not Modify</p>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem;">Report ID: bPMWHbifRoS0aaF25jKBYA | Generated: 2026-05-15T19:33:00Z</p>
+        </footer>
     </div>
-    <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:1rem;text-align:center;">
-      <div style="font-size:1.8rem;font-weight:700;color:#f97316;">6</div>
-      <div style="font-size:0.75rem;color:#94a3b8;text-transform:uppercase;">HIGH Findings Shipped</div>
-    </div>
-    <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:1rem;text-align:center;">
-      <div style="font-size:1.8rem;font-weight:700;color:#f59e0b;">18</div>
-      <div style="font-size:0.75rem;color:#94a3b8;text-transform:uppercase;">MEDIUM Findings Shipped</div>
-    </div>
-    <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:1rem;text-align:center;">
-      <div style="font-size:1.8rem;font-weight:700;color:#ef4444;">0</div>
-      <div style="font-size:0.75rem;color:#94a3b8;text-transform:uppercase;">OPA Policies Evaluated</div>
-    </div>
-  </div>
-
-  <h3>Semgrep SAST Results (Run #1 &mdash; vulpy repository)</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Scanner</th><th>Total Findings</th><th>Critical</th><th>High</th><th>Medium</th><th>Low</th><th>Blocked?</th><th>Residual Risk</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>Semgrep</strong> (SAST)</td>
-        <td>26</td>
-        <td style="color:#ef4444;font-weight:700;">0</td>
-        <td style="color:#f97316;font-weight:700;">6</td>
-        <td style="color:#f59e0b;font-weight:700;">18</td>
-        <td>2</td>
-        <td><span class="badge badge-fail">NO</span></td>
-        <td><span class="badge badge-high">HIGH</span></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p style="color:#fca5a5; margin-top:1rem; font-size:0.85rem;">&#9888; <strong>Structurally present but operationally weak:</strong> Semgrep ran and found 26 vulnerabilities. With no <code>fail_on_severity</code> threshold configured, the pipeline succeeded despite 6 HIGH findings in the vulpy codebase. New occurrences this run: 2 HIGH. These findings represent real SAST risk that was detected but not blocked.</p>
-
-  <h3 style="margin-top:1.5rem;">Residual Risk Mapping</h3>
-  <table>
-    <thead><tr><th>Finding Category</th><th>Count</th><th>SOC 2</th><th>NIST 800-53</th><th>DoD cATO</th><th>PCI DSS</th><th>Risk Level</th></tr></thead>
-    <tbody>
-      <tr>
-        <td>SAST HIGH findings (unblocked)</td>
-        <td>6</td>
-        <td>CC7.1</td>
-        <td>RA-5, SI-2</td>
-        <td>1.0, 3.2</td>
-        <td>6.3.1, 11.3</td>
-        <td><span class="badge badge-high">HIGH</span></td>
-      </tr>
-      <tr>
-        <td>SAST MEDIUM findings (unblocked)</td>
-        <td>18</td>
-        <td>CC7.1</td>
-        <td>RA-5, SI-2</td>
-        <td>3.2</td>
-        <td>6.3.1</td>
-        <td><span class="badge badge-medium">MEDIUM</span></td>
-      </tr>
-      <tr>
-        <td>No secret scanning (undetected risk)</td>
-        <td>Unknown</td>
-        <td>CC6.1</td>
-        <td>IA-5, SC-28</td>
-        <td>1.0</td>
-        <td>8.2, 8.6</td>
-        <td><span class="badge badge-critical">CRITICAL</span></td>
-      </tr>
-      <tr>
-        <td>OPA policy warnings (non-evaluated)</td>
-        <td>0</td>
-        <td>CC5.2</td>
-        <td>CM-3, CA-7</td>
-        <td>3.2</td>
-        <td>6.4</td>
-        <td><span class="badge badge-high">HIGH</span></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p style="margin-top:1.5rem; color:#94a3b8; font-size:0.85rem;"><strong>Residual Risk Score: HIGH</strong> &mdash; 26 SAST findings shipped without a blocking gate. No secret scanning means unknown credential exposure risk. Zero OPA policies means no automated compliance enforcement occurred.</p>
-</div>
-
-<!-- COMBINED POSTURE -->
-<div class="section" style="background:linear-gradient(135deg,#1e1a2e,#1e293b); border-color:#6d28d9;">
-  <h2 style="color:#a78bfa;">&#128202; Combined Compliance Posture</h2>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:1rem;">
-    <div style="text-align:center;padding:1.5rem;background:#0f172a;border-radius:8px;border:1px solid #334155;">
-      <div style="font-size:2rem;font-weight:700;color:#f59e0b;">18%</div>
-      <div style="color:#94a3b8;font-size:0.85rem;text-transform:uppercase;">Structural Score</div>
-      <div style="color:#64748b;font-size:0.75rem;margin-top:0.5rem;">2/11 assessable checks passed</div>
-    </div>
-    <div style="text-align:center;padding:1.5rem;background:#0f172a;border-radius:8px;border:1px solid #ef4444;">
-      <div style="font-size:2rem;font-weight:700;color:#ef4444;">HIGH</div>
-      <div style="color:#94a3b8;font-size:0.85rem;text-transform:uppercase;">Residual Risk</div>
-      <div style="color:#64748b;font-size:0.75rem;margin-top:0.5rem;">26 findings shipped, 0 blocked</div>
-    </div>
-    <div style="text-align:center;padding:1.5rem;background:#0f172a;border-radius:8px;border:1px solid #6d28d9;">
-      <div style="font-size:2rem;font-weight:700;color:#f59e0b;">~15%</div>
-      <div style="color:#94a3b8;font-size:0.85rem;text-transform:uppercase;">Combined Posture</div>
-      <div style="color:#64748b;font-size:0.75rem;margin-top:0.5rem;">Penalized for operational gaps</div>
-    </div>
-  </div>
-</div>
-
-<!-- OPA POLICIES GENERATED -->
-<div class="section">
-  <h2>&#128196; Generated OPA Policies</h2>
-  <p style="color:#94a3b8;margin-bottom:1rem;font-size:0.85rem;">The following Rego policies were generated for missing controls and are importable via the Harness Governance API.</p>
-  <table>
-    <thead><tr><th>Policy File</th><th>Control</th><th>Gate</th><th>Severity</th><th>NIST Controls</th><th>Waiver</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><code style="color:#38bdf8;">sbom_required.rego</code></td>
-        <td>SBOM Generation (Check 1)</td>
-        <td>On Run</td>
-        <td><span class="badge badge-high">HIGH</span></td>
-        <td>SR-4, SA-11</td>
-        <td>Yes</td>
-      </tr>
-      <tr>
-        <td><code style="color:#38bdf8;">secret_detection_required.rego</code></td>
-        <td>Secret Detection (Check 6)</td>
-        <td>On Run</td>
-        <td><span class="badge badge-critical">CRITICAL</span></td>
-        <td>IA-5, SC-28</td>
-        <td>No</td>
-      </tr>
-      <tr>
-        <td><code style="color:#38bdf8;">sca_required.rego</code></td>
-        <td>SCA Scanner (Check 5)</td>
-        <td>On Run</td>
-        <td><span class="badge badge-high">HIGH</span></td>
-        <td>RA-5, SR-4</td>
-        <td>Yes</td>
-      </tr>
-      <tr>
-        <td><code style="color:#38bdf8;">fail_on_severity_required.rego</code></td>
-        <td>Severity Thresholds (Check 11)</td>
-        <td>On Run</td>
-        <td><span class="badge badge-high">HIGH</span></td>
-        <td>RA-5, SI-2</td>
-        <td>Yes</td>
-      </tr>
-      <tr>
-        <td><code style="color:#38bdf8;">opa_policy_set_required.rego</code></td>
-        <td>OPA Policy Sets (Checks 9,10)</td>
-        <td>On Save</td>
-        <td><span class="badge badge-high">HIGH</span></td>
-        <td>CA-7, CM-3, CM-4</td>
-        <td>No</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- REMEDIATIONS -->
-<div class="section">
-  <h2>&#128295; Proposed Remediations (YAML Diffs)</h2>
-  <p style="color:#f59e0b;font-size:0.85rem;margin-bottom:1.5rem;">&#9888; Auto-remediation is available for items below. <strong>Approve to apply via MCP</strong> &mdash; human review required before application.</p>
-
-  <h3>Remediation 1: Add Gitleaks Secret Scanner (CRITICAL)</h3>
-  <p style="color:#94a3b8;font-size:0.82rem;margin-bottom:0.5rem;">Closes: SOC2 CC6.1/CC6.7 | NIST IA-5/SC-28 | PCI 8.2/8.6</p>
-  <div class="diff-box">
-    <span class="diff-context">  execution:</span><br>
-    <span class="diff-context">    steps:</span><br>
-    <span class="diff-add">+     - step:</span><br>
-    <span class="diff-add">+         type: Gitleaks</span><br>
-    <span class="diff-add">+         name: Gitleaks_SecretScan</span><br>
-    <span class="diff-add">+         identifier: Gitleaks_SecretScan</span><br>
-    <span class="diff-add">+         spec:</span><br>
-    <span class="diff-add">+           mode: orchestration</span><br>
-    <span class="diff-add">+           config: default</span><br>
-    <span class="diff-add">+           target:</span><br>
-    <span class="diff-add">+             detection: auto</span><br>
-    <span class="diff-add">+             type: repository</span><br>
-    <span class="diff-add">+           advanced:</span><br>
-    <span class="diff-add">+             fail_on_severity: critical</span><br>
-    <span class="diff-context">      - step:</span><br>
-    <span class="diff-context">          type: Semgrep</span>
-  </div>
-
-  <h3>Remediation 2: Add fail_on_severity to Semgrep (HIGH)</h3>
-  <p style="color:#94a3b8;font-size:0.82rem;margin-bottom:0.5rem;">Closes: SOC2 CC7.2/CC7.3 | NIST RA-5/SI-2 | PCI 6.3.1/11.3</p>
-  <div class="diff-box">
-    <span class="diff-context">  - step:</span><br>
-    <span class="diff-context">      type: Semgrep</span><br>
-    <span class="diff-context">      name: Semgrep_1</span><br>
-    <span class="diff-context">      spec:</span><br>
-    <span class="diff-context">        advanced:</span><br>
-    <span class="diff-context">          log:</span><br>
-    <span class="diff-context">            level: info</span><br>
-    <span class="diff-add">+         fail_on_severity: high</span><br>
-    <span class="diff-context">          args: {}</span>
-  </div>
-
-  <h3>Remediation 3: Add OsvScanner SCA Step (HIGH)</h3>
-  <p style="color:#94a3b8;font-size:0.82rem;margin-bottom:0.5rem;">Closes: SOC2 CC7.1 | NIST RA-5/SR-4 | SLSA L1 | PCI 6.3.1</p>
-  <div class="diff-box">
-    <span class="diff-context">      - step:</span><br>
-    <span class="diff-context">          type: Semgrep</span><br>
-    <span class="diff-context">          ...</span><br>
-    <span class="diff-add">+     - step:</span><br>
-    <span class="diff-add">+         type: OsvScanner</span><br>
-    <span class="diff-add">+         name: OsvScanner_SCA</span><br>
-    <span class="diff-add">+         identifier: OsvScanner_SCA</span><br>
-    <span class="diff-add">+         spec:</span><br>
-    <span class="diff-add">+           mode: orchestration</span><br>
-    <span class="diff-add">+           config: default</span><br>
-    <span class="diff-add">+           target:</span><br>
-    <span class="diff-add">+             detection: auto</span><br>
-    <span class="diff-add">+             type: repository</span><br>
-    <span class="diff-add">+           advanced:</span><br>
-    <span class="diff-add">+             fail_on_severity: critical</span>
-  </div>
-</div>
-
-<!-- NIST 800-53 CONTROL COVERAGE GRID -->
-<div class="section">
-  <h2>&#128203; NIST 800-53 Control Coverage Grid</h2>
-  <p style="color:#94a3b8;font-size:0.82rem;margin-bottom:1rem;">Coverage status based on structural assessment. Green = covered, Red = gap, Amber = partial, Gray = not applicable to pipeline scope.</p>
-  <div class="control-grid">
-    <div class="control-gap">AU-2</div>
-    <div class="control-covered">AU-3</div>
-    <div class="control-covered">AU-6</div>
-    <div class="control-gap">CA-2</div>
-    <div class="control-gap">CA-6</div>
-    <div class="control-gap">CA-7</div>
-    <div class="control-gap">CA-7(1)</div>
-    <div class="control-gap">CM-2</div>
-    <div class="control-gap">CM-3</div>
-    <div class="control-gap">CM-3(2)</div>
-    <div class="control-gap">CM-4</div>
-    <div class="control-na">CM-6</div>
-    <div class="control-gap">IA-5</div>
-    <div class="control-partial">RA-5</div>
-    <div class="control-gap">SA-11</div>
-    <div class="control-partial">SA-11(1)</div>
-    <div class="control-gap">SA-12</div>
-    <div class="control-gap">SC-28</div>
-    <div class="control-partial">SI-2</div>
-    <div class="control-gap">SI-7</div>
-    <div class="control-gap">SR-3</div>
-    <div class="control-gap">SR-4</div>
-    <div class="control-gap">SR-11</div>
-  </div>
-  <p style="margin-top:1rem;font-size:0.75rem;color:#64748b;">
-    <span class="control-cell control-covered" style="display:inline-block;">Covered</span>&nbsp;
-    <span class="control-cell control-gap" style="display:inline-block;">Gap</span>&nbsp;
-    <span class="control-cell control-partial" style="display:inline-block;">Partial</span>&nbsp;
-    <span class="control-cell control-na" style="display:inline-block;">N/A</span>
-  </p>
-</div>
-
-<!-- ARTIFACTS -->
-<div class="section">
-  <h2>&#128190; Evidence Artifacts</h2>
-  <table>
-    <thead><tr><th>Artifact</th><th>Path</th><th>Status</th></tr></thead>
-    <tbody>
-      <tr><td>NIST Control Matrix HTML</td><td><code>.agent/output/NIST_Control_Matrix.html</code></td><td><span class="badge badge-pass">GENERATED</span></td></tr>
-      <tr><td>Assessment JSON</td><td><code>.agent/output/agr-assessment.json</code></td><td><span class="badge badge-pass">GENERATED</span></td></tr>
-      <tr><td>OPA Policy: sbom_required</td><td><code>.agent/output/generated-policies/sbom_required.rego</code></td><td><span class="badge badge-pass">GENERATED</span></td></tr>
-      <tr><td>OPA Policy: secret_detection_required</td><td><code>.agent/output/generated-policies/secret_detection_required.rego</code></td><td><span class="badge badge-pass">GENERATED</span></td></tr>
-      <tr><td>OPA Policy: sca_required</td><td><code>.agent/output/generated-policies/sca_required.rego</code></td><td><span class="badge badge-pass">GENERATED</span></td></tr>
-      <tr><td>OPA Policy: fail_on_severity_required</td><td><code>.agent/output/generated-policies/fail_on_severity_required.rego</code></td><td><span class="badge badge-pass">GENERATED</span></td></tr>
-      <tr><td>OPA Policy: opa_policy_set_required</td><td><code>.agent/output/generated-policies/opa_policy_set_required.rego</code></td><td><span class="badge badge-pass">GENERATED</span></td></tr>
-      <tr><td>Evidence Log</td><td><code>.agent/output/agr-evidence-log.jsonl</code></td><td><span class="badge badge-pass">GENERATED</span></td></tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- FOOTER -->
-<div class="footer">
-  <p>Generated by AGR Assessor Agent &nbsp;|&nbsp; Account: NjU5NDczNGEtMTE1My00Mz &nbsp;|&nbsp; Org: default &nbsp;|&nbsp; Project: LFG</p>
-  <p style="margin-top:0.5rem;"><strong>ATO Evidence Package &mdash; Do Not Modify</strong></p>
-  <p style="margin-top:0.5rem; color:#475569;">Assessment Timestamp: 2026-05-15T19:20:00Z &nbsp;|&nbsp; Assessor Execution: lyUd_5juQtqFS5Lc4mh7aw</p>
-</div>
-
-</div>
 </body>
 </html>
