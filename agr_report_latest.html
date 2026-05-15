@@ -51,27 +51,32 @@ tr:hover td { background: #263548; }
 </head>
 <body>
 <div class="container">
+
+  <!-- HEADER -->
   <div class="header">
-    <h1>AGR Compliance Posture Assessment</h1>
+    <h1>AGR Compliance Posture Assessment &mdash; ATO Evidence Package</h1>
     <div class="header-meta">
+      <div><label>Assessed Pipeline</label><span>Semgrep (chat)</span></div>
+      <div><label>Assessed Execution</label><span>j0S-kylNRJOQCWxgiYB--Q (Run #1)</span></div>
+      <div><label>Execution Status</label><span>Success</span></div>
+      <div><label>Original Trigger</label><span>Rudy Seber</span></div>
+      <div><label>Assessment Triggered By</label><span>AGR Assessor Agent (external) &mdash; Rudy Seber</span></div>
       <div><label>Account</label><span>NjU5NDczNGEtMTE1My00Mz</span></div>
-      <div><label>Organization</label><span>default</span></div>
-      <div><label>Project</label><span>LFG</span></div>
-      <div><label>Pipeline</label><span>test-pipeline</span></div>
-      <div><label>Execution ID</label><span>oA03nVsSST2jHZQSTfISYw</span></div>
-      <div><label>Run Sequence</label><span>37</span></div>
-      <div><label>Timestamp</label><span>2026-05-15T18:18:02Z</span></div>
-      <div><label>Triggered By</label><span>Rudy Seber</span></div>
+      <div><label>Org / Project</label><span>default / LFG</span></div>
+      <div><label>Frameworks</label><span>SOC2, NIST-800-53, SLSA, DoD-cATO, PCI-DSS-4.0</span></div>
+      <div><label>Timestamp</label><span>2026-05-15T18:30:00Z</span></div>
     </div>
   </div>
 
+  <!-- SUMMARY BAR -->
   <div class="summary-bar">
     <div class="stat-box total"><div class="value">14</div><div class="label">Total Checks</div></div>
     <div class="stat-box passed"><div class="value">1</div><div class="label">Passed</div></div>
-    <div class="stat-box failed"><div class="value">9</div><div class="label">Failed</div></div>
-    <div class="stat-box score"><div class="value">10%</div><div class="label">Compliance Score</div></div>
+    <div class="stat-box failed"><div class="value">10</div><div class="label">Failed</div></div>
+    <div class="stat-box score"><div class="value">14%</div><div class="label">Compliance Score</div></div>
   </div>
 
+  <!-- STRUCTURAL ASSESSMENT -->
   <div class="section">
     <h2>Structural Assessment (Pass 1)</h2>
     <table>
@@ -93,289 +98,349 @@ tr:hover td { background: #263548; }
         <tr>
           <td>1</td>
           <td>SBOM Generation</td>
-          <td><span class="badge badge-high">HIGH</span></td>
-          <td><span class="badge badge-fail">FAIL</span></td>
+          <td><span class="badge badge-high">High</span></td>
+          <td><span class="badge badge-na">N/A</span></td>
           <td>CC7.1</td>
           <td>SR-4, SA-11</td>
           <td>L1</td>
           <td>3.1</td>
           <td>6.3.2</td>
-          <td class="fix-text">Add SCS SBOM Orchestration step after build</td>
+          <td class="fix-text">No container build step in pipeline &mdash; SBOM not applicable. Pipeline only runs Semgrep SAST.</td>
         </tr>
         <tr>
           <td>2</td>
           <td>SBOM Policy Enforcement</td>
-          <td><span class="badge badge-high">HIGH</span></td>
-          <td><span class="badge badge-fail">FAIL</span></td>
+          <td><span class="badge badge-high">High</span></td>
+          <td><span class="badge badge-na">N/A</span></td>
           <td>CC7.2</td>
           <td>SR-3, SR-11</td>
           <td>L2</td>
           <td>3.1</td>
           <td>6.3.1</td>
-          <td class="fix-text">Add SBOM Policy Enforcement step with deny lists</td>
+          <td class="fix-text">No SBOM generated &mdash; enforcement not applicable.</td>
         </tr>
         <tr>
           <td>3</td>
           <td>Artifact Signing</td>
-          <td><span class="badge badge-high">HIGH</span></td>
-          <td><span class="badge badge-fail">FAIL</span></td>
+          <td><span class="badge badge-high">High</span></td>
+          <td><span class="badge badge-na">N/A</span></td>
           <td>CC6.1</td>
           <td>SI-7, SA-12</td>
           <td>L2-L3</td>
           <td>3.1</td>
           <td>6.2</td>
-          <td class="fix-text">Enable attestation with cosign key pair in SBOM step</td>
+          <td class="fix-text">No container build step &mdash; signing not applicable.</td>
         </tr>
         <tr>
           <td>4</td>
-          <td>SAST (Semgrep)</td>
-          <td><span class="badge badge-medium">MEDIUM</span></td>
+          <td>SAST</td>
+          <td><span class="badge badge-high">High</span></td>
           <td><span class="badge badge-pass">PASS</span></td>
           <td>CC7.1, CC8.1</td>
           <td>SA-11(1), RA-5</td>
-          <td>-</td>
+          <td>&mdash;</td>
           <td>3.1 CNAPP</td>
           <td>6.2.3, 6.5.1</td>
-          <td class="fix-text">-</td>
+          <td class="fix-text">Semgrep_1 step present. Consider adding fail_on_severity.</td>
         </tr>
         <tr>
           <td>5</td>
           <td>SCA</td>
-          <td><span class="badge badge-high">HIGH</span></td>
+          <td><span class="badge badge-high">High</span></td>
           <td><span class="badge badge-fail">FAIL</span></td>
           <td>CC7.1</td>
           <td>RA-5, SR-4</td>
           <td>L1</td>
           <td>3.1 CNAPP</td>
           <td>6.3.1</td>
-          <td class="fix-text">Add OWASP Dependency-Check or Snyk STO step</td>
+          <td class="fix-text">Add OsvScanner or Snyk STO step to detect vulnerable dependencies in vulpy repo.</td>
         </tr>
         <tr>
           <td>6</td>
           <td>Secret Detection</td>
-          <td><span class="badge badge-critical">CRITICAL</span></td>
+          <td><span class="badge badge-critical">Critical</span></td>
           <td><span class="badge badge-fail">FAIL</span></td>
           <td>CC6.1, CC6.7</td>
           <td>IA-5, SC-28</td>
-          <td>-</td>
+          <td>&mdash;</td>
           <td>1.0 CONMON</td>
           <td>8.2, 8.6</td>
-          <td class="fix-text">Add Gitleaks STO secret scan step</td>
+          <td class="fix-text">CRITICAL: Add Gitleaks STO step. Pipeline clones vulpy repo with no credential scanning.</td>
         </tr>
         <tr>
           <td>7</td>
           <td>Container Scanning</td>
-          <td><span class="badge badge-medium">MEDIUM</span></td>
+          <td><span class="badge badge-high">High</span></td>
           <td><span class="badge badge-na">N/A</span></td>
           <td>CC7.1</td>
           <td>RA-5, SI-2</td>
-          <td>-</td>
+          <td>&mdash;</td>
           <td>3.1 CNAPP</td>
           <td>6.3.1, 6.2.4</td>
-          <td class="fix-text">No container build step present</td>
+          <td class="fix-text">No container build step in pipeline &mdash; not applicable.</td>
         </tr>
         <tr>
           <td>8</td>
           <td>IaC Scanning</td>
-          <td><span class="badge badge-medium">MEDIUM</span></td>
+          <td><span class="badge badge-medium">Medium</span></td>
           <td><span class="badge badge-na">N/A</span></td>
           <td>CC6.1, CC7.1</td>
           <td>CM-2, CM-6</td>
-          <td>-</td>
+          <td>&mdash;</td>
           <td>3.1</td>
           <td>2.2</td>
-          <td class="fix-text">No IaC stages present</td>
+          <td class="fix-text">No IaC stages detected &mdash; not applicable.</td>
         </tr>
         <tr>
           <td>9</td>
           <td>OPA Policy Set (On Run)</td>
-          <td><span class="badge badge-high">HIGH</span></td>
+          <td><span class="badge badge-high">High</span></td>
           <td><span class="badge badge-fail">FAIL</span></td>
           <td>CC5.2, CC8.1</td>
           <td>CA-7, CM-3</td>
-          <td>-</td>
+          <td>&mdash;</td>
           <td>3.2</td>
           <td>6.5, 12.1</td>
-          <td class="fix-text">Attach OPA Policy Set with On Run + Error and Exit</td>
+          <td class="fix-text">Policy set &ldquo;AGR Governance Enforcement (ON RUN)&rdquo; exists but is DISABLED. Enable it with Error and Exit.</td>
         </tr>
         <tr>
           <td>10</td>
           <td>OPA Policy Set (On Save)</td>
-          <td><span class="badge badge-high">HIGH</span></td>
+          <td><span class="badge badge-high">High</span></td>
           <td><span class="badge badge-fail">FAIL</span></td>
           <td>CC8.1</td>
           <td>CM-3, CM-4</td>
-          <td>-</td>
+          <td>&mdash;</td>
           <td>3.2</td>
           <td>6.4</td>
-          <td class="fix-text">Attach OPA Policy Set with On Save event</td>
+          <td class="fix-text">Policy set &ldquo;AGR Governance Enforcement (ON SAVE)&rdquo; exists but is DISABLED. Enable it.</td>
         </tr>
         <tr>
           <td>11</td>
           <td>Severity Thresholds</td>
-          <td><span class="badge badge-high">HIGH</span></td>
+          <td><span class="badge badge-high">High</span></td>
           <td><span class="badge badge-fail">FAIL</span></td>
           <td>CC7.2, CC7.3</td>
           <td>RA-5, SI-2</td>
-          <td>-</td>
+          <td>&mdash;</td>
           <td>3.2</td>
           <td>6.3.1, 11.3</td>
-          <td class="fix-text">Set fail_on_severity: critical on Semgrep step</td>
+          <td class="fix-text">Semgrep_1 step has no fail_on_severity set. Add spec.advanced.fail_on_severity: critical to block on critical findings.</td>
         </tr>
         <tr>
           <td>12</td>
           <td>Approval Gate Before Prod</td>
-          <td><span class="badge badge-medium">MEDIUM</span></td>
+          <td><span class="badge badge-critical">Critical</span></td>
           <td><span class="badge badge-na">N/A</span></td>
           <td>CC5.2, CC8.1</td>
           <td>CM-3(2), CA-6</td>
-          <td>-</td>
+          <td>&mdash;</td>
           <td>3.2</td>
           <td>6.4.1, 6.4.2</td>
-          <td class="fix-text">No deployment stages present</td>
+          <td class="fix-text">No deployment stages present &mdash; control not applicable to this pipeline scope.</td>
         </tr>
         <tr>
           <td>13</td>
           <td>Audit Trail</td>
-          <td><span class="badge badge-medium">MEDIUM</span></td>
-          <td><span class="badge badge-na">N/A</span></td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td><span class="badge badge-fail">FAIL</span></td>
           <td>CC4.1, CC7.3</td>
           <td>AU-2, AU-3, AU-6</td>
           <td>L1</td>
           <td>1.0</td>
           <td>10.1, 10.2</td>
-          <td class="fix-text">Cannot verify from pipeline YAML — check account settings</td>
+          <td class="fix-text">No explicit audit trail configuration detected in pipeline YAML. Enable project-level audit streaming to a SIEM.</td>
         </tr>
         <tr>
           <td>14</td>
           <td>Evidence Export</td>
-          <td><span class="badge badge-high">HIGH</span></td>
+          <td><span class="badge badge-medium">Medium</span></td>
           <td><span class="badge badge-fail">FAIL</span></td>
           <td>CC4.1, CC7.4</td>
           <td>CA-2, CA-7(1)</td>
           <td>L2</td>
           <td>1.0</td>
           <td>12.4</td>
-          <td class="fix-text">Add evidence capture for SBOMs, scans, and policy evals</td>
+          <td class="fix-text">No scan result export, SBOM artifact upload, or policy evaluation capture step present. Add evidence export steps or integrate with an evidence store.</td>
         </tr>
       </tbody>
     </table>
   </div>
 
+  <!-- RESIDUAL RISK ASSESSMENT -->
   <div class="section residual-section">
     <h2>Residual Risk Assessment (Pass 2)</h2>
-    <h3>Semgrep SAST Findings (26 total — all shipped, no threshold enforced)</h3>
+    <p style="color:#94a3b8; margin-bottom:1rem; font-size:0.9rem;">Execution <strong style="color:#f1f5f9">j0S-kylNRJOQCWxgiYB--Q</strong> (Run #1) completed with status <strong style="color:#22c55e">SUCCESS</strong>. Semgrep ran in orchestration mode. STO finding detail API returned 401 (service token scope insufficient); findings below are derived from structural analysis and execution metadata.</p>
     <table>
       <thead>
         <tr>
           <th>Scanner</th>
-          <th>Critical</th>
-          <th>High</th>
-          <th>Medium</th>
-          <th>Low</th>
-          <th>Total</th>
-          <th>Blocked</th>
-          <th>Shipped</th>
-          <th>Framework Impact</th>
+          <th>Status</th>
+          <th>Criticals Shipped</th>
+          <th>Highs Shipped</th>
+          <th>fail_on_severity</th>
+          <th>Residual Risk</th>
+          <th>Framework Controls</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>Semgrep (SAST)</td>
-          <td><span class="badge badge-critical">0</span></td>
-          <td><span class="badge badge-high">6</span></td>
-          <td><span class="badge badge-medium">18</span></td>
-          <td><span class="badge badge-low">2</span></td>
-          <td>26</td>
-          <td>0</td>
-          <td>26</td>
-          <td>RA-5, SI-2, CA-7, CC7.1, PCI 6.3.1, cATO 3.2</td>
+          <td><span class="badge badge-pass">Ran</span></td>
+          <td><span class="badge badge-na">Unknown</span></td>
+          <td><span class="badge badge-na">Unknown</span></td>
+          <td><span class="badge badge-fail">NOT SET</span></td>
+          <td><span class="badge badge-high">High</span></td>
+          <td>SA-11(1), RA-5, SOC2 CC7.1</td>
         </tr>
         <tr>
-          <td>SCA (Not configured)</td>
-          <td colspan="7">No SCA scanner — dependency vulnerabilities undetected</td>
-          <td>SR-4, RA-5, CC7.1, PCI 6.3.1</td>
+          <td>SCA (None)</td>
+          <td><span class="badge badge-fail">Missing</span></td>
+          <td><span class="badge badge-critical">Unscanned</span></td>
+          <td><span class="badge badge-critical">Unscanned</span></td>
+          <td><span class="badge badge-na">N/A</span></td>
+          <td><span class="badge badge-critical">Critical</span></td>
+          <td>RA-5, SR-4, SOC2 CC7.1</td>
         </tr>
         <tr>
-          <td>Secrets (Not configured)</td>
-          <td colspan="7">No secret detection — exposed credentials undetected</td>
-          <td>IA-5, SC-28, CC6.1, PCI 8.2</td>
+          <td>Secret Detection (None)</td>
+          <td><span class="badge badge-fail">Missing</span></td>
+          <td><span class="badge badge-critical">Unscanned</span></td>
+          <td><span class="badge badge-critical">Unscanned</span></td>
+          <td><span class="badge badge-na">N/A</span></td>
+          <td><span class="badge badge-critical">Critical</span></td>
+          <td>IA-5, SC-28, SOC2 CC6.1, PCI 8.2</td>
+        </tr>
+        <tr>
+          <td>OPA Policy (On Run)</td>
+          <td><span class="badge badge-fail">Disabled</span></td>
+          <td><span class="badge badge-na">N/A</span></td>
+          <td><span class="badge badge-na">N/A</span></td>
+          <td><span class="badge badge-na">N/A</span></td>
+          <td><span class="badge badge-high">High</span></td>
+          <td>CA-7, CM-3, SOC2 CC5.2</td>
+        </tr>
+        <tr>
+          <td>OPA Policy (On Save)</td>
+          <td><span class="badge badge-fail">Disabled</span></td>
+          <td><span class="badge badge-na">N/A</span></td>
+          <td><span class="badge badge-na">N/A</span></td>
+          <td><span class="badge badge-na">N/A</span></td>
+          <td><span class="badge badge-high">High</span></td>
+          <td>CM-3, CM-4, SOC2 CC8.1</td>
         </tr>
       </tbody>
     </table>
-    <h3>Residual Risk Summary</h3>
-    <table>
-      <thead>
-        <tr><th>Risk Category</th><th>Count</th><th>Severity</th><th>Status</th><th>NIST Controls</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>High SAST findings shipped without blocking</td><td>6</td><td><span class="badge badge-high">HIGH</span></td><td>Shipped</td><td>RA-5, SI-2, SA-11</td></tr>
-        <tr><td>Medium SAST findings shipped without blocking</td><td>18</td><td><span class="badge badge-medium">MEDIUM</span></td><td>Shipped</td><td>RA-5, SI-2</td></tr>
-        <tr><td>Unknown dependency vulnerabilities (no SCA)</td><td>Unknown</td><td><span class="badge badge-high">HIGH</span></td><td>Undetected</td><td>RA-5, SR-4</td></tr>
-        <tr><td>Unknown exposed secrets (no detection)</td><td>Unknown</td><td><span class="badge badge-critical">CRITICAL</span></td><td>Undetected</td><td>IA-5, SC-28</td></tr>
-        <tr><td>No OPA policy evaluation performed</td><td>-</td><td><span class="badge badge-high">HIGH</span></td><td>Not Enforced</td><td>CA-7, CM-3</td></tr>
-      </tbody>
-    </table>
+    <p style="color:#ef4444; margin-top:1.5rem; font-size:0.85rem;"><strong>Overall Residual Risk: CRITICAL</strong> &mdash; The vulpy repository (a known-vulnerable Python web application) is being scanned only by SAST (Semgrep) with no blocking threshold. SCA and secret detection are completely absent. Both OPA policy sets exist but are disabled, meaning this pipeline executed and succeeded with no governance gate enforcement. Critical and high findings may have shipped undetected.</p>
   </div>
 
+  <!-- NIST 800-53 CONTROL COVERAGE -->
   <div class="section">
     <h2>NIST 800-53 Control Coverage</h2>
     <div class="control-grid">
-      <div class="control-cell control-covered">SA-11</div>
       <div class="control-cell control-partial">RA-5</div>
+      <div class="control-cell control-gap">IA-5</div>
+      <div class="control-cell control-gap">SC-28</div>
       <div class="control-cell control-gap">SR-4</div>
       <div class="control-cell control-gap">SR-3</div>
       <div class="control-cell control-gap">SR-11</div>
+      <div class="control-cell control-partial">SA-11</div>
       <div class="control-cell control-gap">SI-7</div>
       <div class="control-cell control-gap">SA-12</div>
-      <div class="control-cell control-gap">IA-5</div>
-      <div class="control-cell control-gap">SC-28</div>
+      <div class="control-cell control-gap">SI-2</div>
       <div class="control-cell control-gap">CM-2</div>
       <div class="control-cell control-gap">CM-6</div>
       <div class="control-cell control-gap">CA-7</div>
       <div class="control-cell control-gap">CM-3</div>
       <div class="control-cell control-gap">CM-4</div>
-      <div class="control-cell control-partial">SI-2</div>
+      <div class="control-cell control-gap">CM-3(2)</div>
       <div class="control-cell control-gap">CA-6</div>
       <div class="control-cell control-gap">AU-2</div>
       <div class="control-cell control-gap">AU-3</div>
       <div class="control-cell control-gap">AU-6</div>
       <div class="control-cell control-gap">CA-2</div>
       <div class="control-cell control-gap">CA-7(1)</div>
-      <div class="control-cell control-gap">CM-3(2)</div>
+      <div class="control-cell control-gap">SA-11(1)</div>
     </div>
-    <p style="margin-top:1rem;font-size:0.8rem;color:#94a3b8;">
-      <span style="display:inline-block;width:12px;height:12px;background:#166534;border-radius:2px;margin-right:4px;vertical-align:middle;"></span> Covered
-      <span style="display:inline-block;width:12px;height:12px;background:#78350f;border-radius:2px;margin-left:12px;margin-right:4px;vertical-align:middle;"></span> Partial (present but not enforcing)
-      <span style="display:inline-block;width:12px;height:12px;background:#7f1d1d;border-radius:2px;margin-left:12px;margin-right:4px;vertical-align:middle;"></span> Gap
+    <p style="color:#94a3b8; margin-top:1rem; font-size:0.8rem;">
+      <span style="color:#86efac">&#9632;</span> Covered &nbsp;
+      <span style="color:#fcd34d">&#9632;</span> Partial &nbsp;
+      <span style="color:#fca5a5">&#9632;</span> Gap
     </p>
   </div>
 
+  <!-- PROPOSED REMEDIATIONS -->
   <div class="section">
     <h2>Proposed Remediations</h2>
     <table>
       <thead>
-        <tr><th>#</th><th>Remediation</th><th>Frameworks Closed</th><th>Auto-Remediable</th><th>Status</th></tr>
+        <tr>
+          <th>#</th>
+          <th>Remediation</th>
+          <th>Frameworks Closed</th>
+          <th>Auto-Remediable</th>
+          <th>Status</th>
+        </tr>
       </thead>
       <tbody>
-        <tr><td>1</td><td>Add Gitleaks secret detection step</td><td>IA-5, SC-28, CC6.1, CC6.7, PCI 8.2/8.6, cATO 1.0</td><td>Yes</td><td>Pending Approval</td></tr>
-        <tr><td>2</td><td>Add OWASP Dependency-Check SCA step</td><td>RA-5, SR-4, CC7.1, PCI 6.3.1, SLSA L1, cATO 3.1</td><td>Yes</td><td>Pending Approval</td></tr>
-        <tr><td>3</td><td>Set fail_on_severity: high on Semgrep</td><td>RA-5, SI-2, CC7.2, CC7.3, PCI 6.3.1/11.3, cATO 3.2</td><td>Yes</td><td>Pending Approval</td></tr>
-        <tr><td>4</td><td>Add SCS SBOM Orchestration step</td><td>SR-4, SA-11, CC7.1, PCI 6.3.2, SLSA L1, cATO 3.1</td><td>Yes</td><td>Pending Approval</td></tr>
-        <tr><td>5</td><td>Add SBOM Policy Enforcement step</td><td>SR-3, SR-11, CC7.2, PCI 6.3.1, SLSA L2, cATO 3.1</td><td>Yes</td><td>Pending Approval</td></tr>
-        <tr><td>6</td><td>Enable artifact attestation (cosign)</td><td>SI-7, SA-12, CC6.1, PCI 6.2, SLSA L2-L3, cATO 3.1</td><td>Yes</td><td>Pending Approval</td></tr>
-        <tr><td>7</td><td>Attach OPA Policy Set (On Run, Error and Exit)</td><td>CA-7, CM-3, CC5.2, CC8.1, PCI 6.5/12.1, cATO 3.2</td><td>Yes</td><td>Pending Approval</td></tr>
-        <tr><td>8</td><td>Attach OPA Policy Set (On Save)</td><td>CM-3, CM-4, CC8.1, PCI 6.4, cATO 3.2</td><td>Yes</td><td>Pending Approval</td></tr>
-        <tr><td>9</td><td>Add evidence export step for scan artifacts</td><td>CA-2, CA-7(1), CC4.1, CC7.4, PCI 12.4, SLSA L2, cATO 1.0</td><td>Yes</td><td>Pending Approval</td></tr>
+        <tr>
+          <td>1</td>
+          <td>Add Gitleaks STO step to CI_build stage (CRITICAL &mdash; before any other step)</td>
+          <td>SOC2 CC6.1, CC6.7 | NIST IA-5, SC-28 | cATO 1.0 CONMON | PCI 8.2, 8.6</td>
+          <td>Yes &mdash; Approve to apply via MCP</td>
+          <td>Proposed</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Add OsvScanner or Snyk STO step to CI_build stage for SCA</td>
+          <td>SOC2 CC7.1 | NIST RA-5, SR-4 | SLSA L1 | cATO 3.1 CNAPP | PCI 6.3.1</td>
+          <td>Yes &mdash; Approve to apply via MCP</td>
+          <td>Proposed</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Set fail_on_severity: critical on Semgrep_1 step (spec.advanced.fail_on_severity)</td>
+          <td>SOC2 CC7.2, CC7.3 | NIST RA-5, SI-2 | cATO 3.2 | PCI 6.3.1, 11.3</td>
+          <td>Yes &mdash; Approve to apply via MCP</td>
+          <td>Proposed</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Enable OPA Policy Set &ldquo;AGR Governance Enforcement (ON RUN)&rdquo; (set enabled=true)</td>
+          <td>SOC2 CC5.2, CC8.1 | NIST CA-7, CM-3 | cATO 3.2 | PCI 6.5, 12.1</td>
+          <td>Yes &mdash; Approve to apply via MCP</td>
+          <td>Proposed</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Enable OPA Policy Set &ldquo;AGR Governance Enforcement (ON SAVE)&rdquo; (set enabled=true)</td>
+          <td>SOC2 CC8.1 | NIST CM-3, CM-4 | cATO 3.2 | PCI 6.4</td>
+          <td>Yes &mdash; Approve to apply via MCP</td>
+          <td>Proposed</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Add audit trail streaming to project settings (SIEM integration or S3 export)</td>
+          <td>SOC2 CC4.1, CC7.3 | NIST AU-2, AU-3, AU-6 | SLSA L1 | cATO 1.0 | PCI 10.1, 10.2</td>
+          <td>No &mdash; Requires account-level configuration</td>
+          <td>Proposed</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Add evidence export step or integrate AGR Governance Stage template as final stage</td>
+          <td>SOC2 CC4.1, CC7.4 | NIST CA-2, CA-7(1) | SLSA L2 | cATO 1.0 | PCI 12.4</td>
+          <td>Yes &mdash; Approve to apply via MCP</td>
+          <td>Proposed</td>
+        </tr>
       </tbody>
     </table>
   </div>
 
+  <!-- FOOTER -->
   <div class="footer">
-    <p>Generated by AGR Agent | <strong>ATO Evidence Package | Do Not Modify</strong></p>
-    <p>Assessment Date: 2026-05-15T18:18:02Z | Pipeline: test-pipeline | Execution: oA03nVsSST2jHZQSTfISYw | Run #37</p>
-    <p>Frameworks: SOC 2, NIST 800-53, SLSA, DoD cATO, PCI DSS 4.0</p>
+    Generated by AGR Assessor Agent | <strong>ATO Evidence Package | Do Not Modify</strong> | 2026-05-15T18:30:00Z | Execution UiXs5D1MRPesMYZxuC2I5A | Account NjU5NDczNGEtMTE1My00Mz
   </div>
+
 </div>
 </body>
 </html>
