@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGR V2 Compliance Posture Assessment — End2End Delivery Pipeline | Platform_Engineering</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0f172a; color: #e2e8f0; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
+.page { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+.header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 60%, #0c1a2e 100%); border: 1px solid #334155; border-radius: 12px; padding: 36px 40px; margin-bottom: 28px; text-align: center; position: relative; overflow: hidden; }
+.header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(56,189,248,0.07) 0%, transparent 70%); pointer-events: none; }
+.header-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); border-radius: 100px; padding: 4px 16px; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #38bdf8; margin-bottom: 16px; }
+.header-badge::before { content: ''; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+h1.title { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; color: #f1f5f9; line-height: 1.2; margin-bottom: 8px; }
+h1.title span { color: #38bdf8; }
+.subtitle { font-size: 1rem; color: #94a3b8; margin-bottom: 24px; }
+.meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 24px; }
+.meta-item { background: rgba(255,255,255,0.04); border: 1px solid #1e293b; border-radius: 8px; padding: 10px 14px; text-align: left; }
+.meta-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; margin-bottom: 3px; }
+.meta-value { font-size: 13px; font-weight: 600; color: #cbd5e1; font-family: 'SF Mono', 'Fira Code', monospace; }
+.summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card { background: #1e293b; border-radius: 10px; padding: 20px 24px; border: 1px solid #334155; position: relative; overflow: hidden; }
+.stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
+.stat-card.total::after { background: #38bdf8; }
+.stat-card.passed::after { background: #22c55e; }
+.stat-card.failed::after { background: #ef4444; }
+.stat-card.score::after { background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #22c55e 100%); }
+.stat-number { font-size: 2.4rem; font-weight: 800; line-height: 1; }
+.stat-number.blue { color: #38bdf8; } .stat-number.green { color: #22c55e; } .stat-number.red { color: #ef4444; } .stat-number.amber { color: #f59e0b; }
+.stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b; margin-top: 4px; }
+.stat-sub { font-size: 11px; color: #475569; margin-top: 6px; }
+.section { margin-bottom: 28px; }
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.section-header h2 { font-size: 0.95rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; }
+.section-header::before { content: ''; display: block; width: 3px; height: 18px; background: #38bdf8; border-radius: 2px; }
+.pass-1-badge { background: rgba(56,189,248,0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; }
+.pass-2-badge { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; }
+.table-wrap { background: #1e293b; border-radius: 10px; border: 1px solid #334155; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: #0f172a; border-bottom: 2px solid #334155; }
+thead th { padding: 11px 14px; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid #0f172a; transition: background 0.15s; }
+tbody tr:hover { background: rgba(56,189,248,0.04); }
+tbody td { padding: 11px 14px; font-size: 12.5px; vertical-align: top; }
+.check-num { font-weight: 700; color: #475569; font-size: 11px; }
+.check-name { font-weight: 600; color: #cbd5e1; }
+.check-group { font-size: 10px; color: #475569; margin-top: 2px; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.badge-critical { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.badge-high { background: rgba(249,115,22,0.15); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
+.badge-medium { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.badge-low { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
+.badge-pass { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+.badge-fail { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.badge-na { background: rgba(148,163,184,0.1); color: #64748b; border: 1px solid rgba(148,163,184,0.2); }
+.badge-unable { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+.ctrl-ids { display: flex; flex-wrap: wrap; gap: 3px; }
+.ctrl-id { background: rgba(56,189,248,0.08); color: #7dd3fc; border: 1px solid rgba(56,189,248,0.15); border-radius: 3px; padding: 1px 5px; font-size: 9.5px; font-weight: 600; font-family: 'SF Mono', 'Fira Code', monospace; white-space: nowrap; }
+.fix { font-size: 11.5px; color: #94a3b8; line-height: 1.45; }
+.fix strong { color: #cbd5e1; }
+.fix code { background: rgba(56,189,248,0.08); color: #7dd3fc; border-radius: 3px; padding: 0 4px; font-size: 10.5px; font-family: 'SF Mono', 'Fira Code', monospace; }
+.residual-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.risk-card { background: #1e293b; border-radius: 10px; padding: 18px 20px; border: 1px solid #334155; }
+.risk-card.critical { border-left: 3px solid #ef4444; }
+.risk-card.high { border-left: 3px solid #f97316; }
+.risk-card.medium { border-left: 3px solid #f59e0b; }
+.risk-card.info { border-left: 3px solid #38bdf8; }
+.risk-title { font-weight: 700; color: #e2e8f0; margin-bottom: 8px; font-size: 13px; }
+.risk-body { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+.risk-body strong { color: #cbd5e1; }
+.risk-body code { background: rgba(56,189,248,0.08); color: #7dd3fc; border-radius: 3px; padding: 0 4px; font-family: monospace; }
+.coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+.ctrl-cell { background: #1e293b; border-radius: 6px; padding: 8px 10px; border: 1px solid #334155; }
+.ctrl-cell.covered { border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.05); }
+.ctrl-cell.gap { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05); }
+.ctrl-cell-id { font-size: 10px; font-weight: 700; font-family: 'SF Mono', monospace; color: #94a3b8; }
+.ctrl-cell.covered .ctrl-cell-id { color: #22c55e; }
+.ctrl-cell.gap .ctrl-cell-id { color: #f87171; }
+.ctrl-cell-label { font-size: 9px; color: #475569; margin-top: 2px; }
+.remediation { background: #1e293b; border-radius: 10px; border: 1px solid #334155; margin-bottom: 14px; overflow: hidden; }
+.remediation-header { padding: 12px 18px; background: #0f172a; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.remediation-title { font-weight: 700; color: #e2e8f0; font-size: 13px; }
+.remediation-body { padding: 18px; }
+.diff-block { background: #0f172a; border-radius: 6px; padding: 14px; font-family: 'SF Mono', monospace; font-size: 11px; line-height: 1.6; overflow-x: auto; margin: 8px 0; border: 1px solid #1e293b; white-space: pre; }
+.diff-add { color: #4ade80; }
+.diff-context { color: #64748b; }
+.diff-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; margin-bottom: 6px; }
+.approve-btn { display: inline-flex; align-items: center; gap: 6px; background: rgba(56,189,248,0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: 600; }
+.policy-list { display: flex; flex-direction: column; gap: 8px; }
+.policy-item { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.policy-info { flex: 1; min-width: 200px; }
+.policy-name { font-weight: 700; color: #7dd3fc; font-family: 'SF Mono', monospace; font-size: 12px; }
+.policy-desc { font-size: 11.5px; color: #94a3b8; margin-top: 3px; }
+.policy-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.fw-pill { padding: 2px 8px; border-radius: 100px; font-size: 9.5px; font-weight: 700; }
+.fw-soc2 { background: rgba(167,139,250,0.15); color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); }
+.fw-nist { background: rgba(56,189,248,0.12); color: #38bdf8; border: 1px solid rgba(56,189,248,0.25); }
+.fw-slsa { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+.fw-cato { background: rgba(249,115,22,0.12); color: #fb923c; border: 1px solid rgba(249,115,22,0.25); }
+.fw-pci { background: rgba(244,63,94,0.12); color: #fb7185; border: 1px solid rgba(244,63,94,0.25); }
+.evidence-timeline { display: flex; flex-direction: column; gap: 0; }
+.ev-item { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid #1e293b; }
+.ev-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.ev-dot.green { background: #22c55e; } .ev-dot.red { background: #ef4444; } .ev-dot.blue { background: #38bdf8; } .ev-dot.amber { background: #f59e0b; }
+.ev-ts { font-family: 'SF Mono', monospace; font-size: 10px; color: #475569; flex-shrink: 0; width: 170px; }
+.ev-msg { font-size: 12px; color: #94a3b8; }
+.ev-msg strong { color: #cbd5e1; }
+.footer { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px 20px; text-align: center; margin-top: 32px; }
+.footer-text { font-size: 11px; color: #475569; letter-spacing: 0.04em; }
+.footer-text strong { color: #64748b; }
+@media (max-width: 768px) { .summary-bar { grid-template-columns: repeat(2, 1fr); } .meta-grid { grid-template-columns: repeat(2, 1fr); } h1.title { font-size: 1.4rem; } }
+</style></head><body><div class="page">
+<div class="header"><div class="header-badge">🛡 ATO Evidence Package</div>
+<h1 class="title">COMPLIANCE POSTURE <span>ASSESSMENT</span></h1>
+<p class="subtitle">Automated Governance &amp; Remediation (AGR V2) — Two-Pass Compliance Analysis</p>
+<div class="meta-grid"><div class="meta-item"><div class="meta-label">Account</div><div class="meta-value">NjU5NDczNGEtMTE1My00Mz</div></div><div class="meta-item"><div class="meta-label">Organization</div><div class="meta-value">demo</div></div><div class="meta-item"><div class="meta-label">Project</div><div class="meta-value">Platform_Engineering</div></div><div class="meta-item"><div class="meta-label">Pipeline</div><div class="meta-value">End2End Delivery Pipeline (End2End_Delivery_Pipeline)</div></div><div class="meta-item"><div class="meta-label">Execution ID</div><div class="meta-value">jLadMb6XSAOSaZL7FSr_-A</div></div><div class="meta-item"><div class="meta-label">Run Sequence</div><div class="meta-value">#1140</div></div><div class="meta-item"><div class="meta-label">Assessment Time</div><div class="meta-value">2026-05-15T15:16:33Z</div></div><div class="meta-item"><div class="meta-label">Triggered By</div><div class="meta-value">AGR V2 Agent (cross-project) • Rudy Seber | Original: Shawn Pearson</div></div><div class="meta-item"><div class="meta-label">Frameworks</div><div class="meta-value">SOC2 • NIST 800-53 • SLSA • DoD cATO • PCI DSS 4.0</div></div><div class="meta-item"><div class="meta-label">Branch / Commit</div><div class="meta-value">main / 3b335935</div></div><div class="meta-item"><div class="meta-label">Repository</div><div class="meta-value">demo/Boutique_Application</div></div><div class="meta-item"><div class="meta-label">Assessment Mode</div><div class="meta-value">FULL (Pass 1 + Pass 2)</div></div></div></div>
+<div class="summary-bar">
+<div class="stat-card total"><div class="stat-number blue">14</div><div class="stat-label">Total Checks</div><div class="stat-sub">Structural controls assessed</div></div>
+<div class="stat-card passed"><div class="stat-number green">11</div><div class="stat-label">Passed</div><div class="stat-sub">Checks 1-9, 12-14</div></div>
+<div class="stat-card failed"><div class="stat-number red">2</div><div class="stat-label">Failed</div><div class="stat-sub">0 CRITICAL • 2 HIGH</div></div>
+<div class="stat-card score"><div class="stat-number amber">85%</div><div class="stat-label">Compliance Score</div><div class="stat-sub">Residual Risk: <strong style="color:#ef4444">CRITICAL</strong></div></div>
+</div>
+<div class="section"><div class="section-header"><h2>Pass 1 — Structural Assessment</h2><span class="pass-1-badge">14-CONTROL CHECKLIST</span></div>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>Control</th><th>Severity</th><th>Status</th><th>SOC 2</th><th>NIST 800-53</th><th>SLSA</th><th>DoD cATO</th><th>PCI DSS 4.0</th><th>Finding &amp; Recommended Fix</th></tr></thead>
+<tbody><tr><td class="check-num">01</td><td><div class="check-name">SBOM Generation</div><div class="check-group">Supply Chain</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">SR-4</span><span class="ctrl-id">SA-11</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.2</span></div></td><td class="fix"><code>SscaOrchestration</code> step present in <strong>Supply_Chain</strong> step group with Syft/SPDX-JSON generation after build/push. Cosign attestation enabled.</td></tr>
+<tr><td class="check-num">02</td><td><div class="check-name">SBOM Policy Enforcement</div><div class="check-group">Supply Chain</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">SR-3</span><span class="ctrl-id">SR-11</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.1</span></div></td><td class="fix"><code>SBOM_Policy_Enforcement</code> template referenced in Dev, QA, and Prod deploy stages. Enforcement at each promotion gate.</td></tr>
+<tr><td class="check-num">03</td><td><div class="check-name">Artifact Signing</div><div class="check-group">Supply Chain</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC6.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">SI-7</span><span class="ctrl-id">SA-12</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L2-L3</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.2</span></div></td><td class="fix"><code>SscaArtifactSigning</code> with cosign key pair + <code>SLSA_Generation</code> provenance step present. Verification at each deploy stage via <code>SscaArtifactVerification</code>.</td></tr>
+<tr><td class="check-num">04</td><td><div class="check-name">SAST</div><div class="check-group">Security Testing</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span><span class="ctrl-id">CC8.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">SA-11(1)</span><span class="ctrl-id">RA-5</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.2.3</span><span class="ctrl-id">6.5.1</span></div></td><td class="fix">Multiple SAST scanners present: <code>Semgrep</code>, <code>HarnessSAST</code>, <code>SonarQube</code>, <code>Wiz SAST</code>, <code>Snyk SAST</code> in parallel execution.</td></tr>
+<tr><td class="check-num">05</td><td><div class="check-name">SCA</div><div class="check-group">Security Testing</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">RA-5</span><span class="ctrl-id">SR-4</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.1</span></div></td><td class="fix"><code>BlackDuck</code> and <code>Snyk SCA</code> steps present in parallel under SCA step group. Vulnerability and license analysis active.</td></tr>
+<tr style="background: rgba(239,68,68,0.04);"><td class="check-num">06</td><td><div class="check-name">Secret Detection</div><div class="check-group">Security Testing</div></td><td><span class="badge badge-critical">CRITICAL</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC6.1</span><span class="ctrl-id">CC6.7</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">IA-5</span><span class="ctrl-id">SC-28</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">1.0</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">8.2</span><span class="ctrl-id">8.6</span></div></td><td class="fix"><code>Gitleaks</code> step present as <strong>first step</strong> in CI execution. Orchestration mode with repository-level scan.</td></tr>
+<tr><td class="check-num">07</td><td><div class="check-name">Container Scanning</div><div class="check-group">Security Testing</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">RA-5</span><span class="ctrl-id">SI-2</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.1</span><span class="ctrl-id">6.2.4</span></div></td><td class="fix">Container scan step group with <code>AquaTrivy</code>, <code>Wiz Container</code>, <code>HarnessSCA</code>, and <code>JFrog Xray</code> scanning built image after push.</td></tr>
+<tr><td class="check-num">08</td><td><div class="check-name">IaC Scanning</div><div class="check-group">Security Testing</div></td><td><span class="badge badge-medium">MEDIUM</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC6.1</span><span class="ctrl-id">CC7.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CM-2</span><span class="ctrl-id">CM-6</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">2.2</span></div></td><td class="fix"><code>Wiz IaC</code> scan template in IACM stage (<strong>Provision Dev Environment</strong>) scanning Terraform workspace before apply.</td></tr>
+<tr><td class="check-num">09</td><td><div class="check-name">OPA Policy Set (On Run)</div><div class="check-group">Governance</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC5.2</span><span class="ctrl-id">CC8.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CA-7</span><span class="ctrl-id">CM-3</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.5</span><span class="ctrl-id">12.1</span></div></td><td class="fix">2 policy sets evaluated on run: <code>Only_Approved_Docker_Registries</code> (pass) and <code>Warn_Forbidden_Commands_in_Run_Steps</code> (pass). Both passed in execution jLadMb6XSAOSaZL7FSr_-A.</td></tr>
+<tr><td class="check-num">10</td><td><div class="check-name">OPA Policy Set (On Save)</div><div class="check-group">Governance</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-unable">⚠️ UNABLE</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC8.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CM-3</span><span class="ctrl-id">CM-4</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.4</span></div></td><td class="fix">Unable to query policy set configuration for On Save evaluation. <strong>Reason:</strong> Policy management API route unavailable. Generated <code>opa_policy_on_save.rego</code> for enforcement.</td></tr>
+<tr><td class="check-num">11</td><td><div class="check-name">Severity Thresholds</div><div class="check-group">Governance</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-fail">❌ FAIL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.2</span><span class="ctrl-id">CC7.3</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">RA-5</span><span class="ctrl-id">SI-2</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.1</span><span class="ctrl-id">11.3</span></div></td><td class="fix">Snyk SAST has <code>fail_on_severity: none</code>. Other STO steps have no explicit threshold set. Multiple steps use <code>MarkAsSuccess</code> or <code>Ignore</code> failure strategies, allowing critical findings to pass. <strong>Fix:</strong> Set <code>fail_on_severity: critical</code> on all STO steps. Policy: <code>severity_thresholds.rego</code></td></tr>
+<tr style="background: rgba(239,68,68,0.04);"><td class="check-num">12</td><td><div class="check-name">Approval Gate Before Prod</div><div class="check-group">Deployment</div></td><td><span class="badge badge-critical">CRITICAL</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC5.2</span><span class="ctrl-id">CC8.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CM-3(2)</span><span class="ctrl-id">CA-6</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.4.1</span><span class="ctrl-id">6.4.2</span></div></td><td class="fix"><code>Approval</code> stage with <code>JiraApproval</code>, <code>ServiceNowApproval</code>, and <code>HarnessApproval</code> steps positioned before <strong>Deploy to Prod</strong> stage. Multi-gate approval pattern.</td></tr>
+<tr><td class="check-num">13</td><td><div class="check-name">Audit Trail</div><div class="check-group">Audit & Evidence</div></td><td><span class="badge badge-medium">MEDIUM</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC4.1</span><span class="ctrl-id">CC7.3</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">AU-2</span><span class="ctrl-id">AU-3</span><span class="ctrl-id">AU-6</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">1.0</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">10.1</span><span class="ctrl-id">10.2</span></div></td><td class="fix">Harness platform audit trail enabled. Execution metadata, trigger info, governance evaluations, and stage transitions captured with timestamps.</td></tr>
+<tr><td class="check-num">14</td><td><div class="check-name">Evidence Export</div><div class="check-group">Audit & Evidence</div></td><td><span class="badge badge-medium">MEDIUM</span></td><td><span class="badge badge-pass">✅ PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC4.1</span><span class="ctrl-id">CC7.4</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CA-2</span><span class="ctrl-id">CA-7(1)</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">1.0</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">12.4</span></div></td><td class="fix">SBOM artifacts published (scorecard avg 8.17/10), SLSA provenance generated, policy evaluation results captured in governance metadata, STO scan results stored with issue tracking.</td></tr></tbody></table></div></div>
+<div class="section"><div class="section-header"><h2>Pass 2 — Residual Risk Assessment</h2><span class="pass-2-badge">EXECUTION ANALYSIS</span></div>
+<div class="residual-grid"><div class="risk-card critical"><div class="risk-title">⚠️ Critical CVEs — 527 Security Issues (50+ Critical SCA)</div><div class="risk-body">STO detected <strong>527 total security issues</strong> across the pipeline target, with <strong>50+ Critical SCA vulnerabilities</strong> in container base image (Ubuntu 18.04 EOL). Top criticals include <code>openssl@1.1.1</code> (84 occurrences), <code>imagemagick@6.9.7</code> (449 occurrences), <code>libkmod2</code> (209 occurrences). Most are marked <em>unreachable</em> but <strong>exploitable</strong>. Framework mapping: <strong>SOC2 CC7.1 | NIST RA-5, SI-2 | cATO 1.0, 3.2 | PCI 6.3.1, 11.3</strong></div></div>
+<div class="risk-card critical"><div class="risk-title">⚠️ Severity Thresholds Bypassed — Critical Findings Shipped</div><div class="risk-body">STO scanners found critical vulnerabilities but pipeline continued execution. <code>Snyk SAST</code> has <code>fail_on_severity: none</code>. <code>BlackDuck</code>, <code>AquaTrivy</code>, and <code>Wiz</code> use <code>MarkAsSuccess</code>/<code>Ignore</code> failure strategies. Critical CVEs did not block promotion to QA/Prod. Framework mapping: <strong>SOC2 CC7.2 | NIST RA-5, SI-2 | cATO 3.2 | PCI 6.3.1, 11.3</strong></div></div>
+<div class="risk-card high"><div class="risk-title">🛡️ SAST Finding — Critical gRPC Vulnerability</div><div class="risk-body"><code>google.golang.org/grpc@1.74.2</code> flagged as <strong>Critical SAST</strong> finding. Single occurrence detected in latest scan. This library vulnerability may allow remote code execution or denial of service. Framework mapping: <strong>SOC2 CC7.1, CC8.1 | NIST SA-11, RA-5 | cATO 3.1 | PCI 6.2.3</strong></div></div>
+<div class="risk-card high"><div class="risk-title">🔄 EOL Components — Unmaintained Dependencies</div><div class="risk-body">SBOM analysis shows <strong>2 definite EOL components</strong>, <strong>2 derived EOL</strong>, <strong>2 close-to-EOL</strong>, and <strong>8 outdated components</strong>. Ubuntu 18.04 base image is <em>end-of-life</em> with no further security patches. This represents ongoing supply chain risk. Framework mapping: <strong>SOC2 CC7.1 | NIST SR-4, SI-2 | SLSA L1 | cATO 3.1 | PCI 6.3.2</strong></div></div>
+<div class="risk-card medium"><div class="risk-title">ℹ️ Exemptions In Review — 5 Pending Approvals</div><div class="risk-body">5 critical SCA issues have <strong>pending exemption requests</strong>: <code>libncurses5</code>, <code>ghostscript</code>, <code>file</code>, <code>coreutils</code>, <code>bzip2</code>. 1 exemption <strong>approved</strong> (libavahi-client3, expires 2025-01-16). Pending exemptions should be reviewed for risk acceptance documentation. Framework mapping: <strong>SOC2 CC5.2 | NIST CA-7, CM-3 | cATO 3.2 | PCI 6.4</strong></div></div>
+<div class="risk-card medium"><div class="risk-title">📊 OPA Policies Passed — But Limited Scope</div><div class="risk-body">2 OPA policy sets evaluated on run both <strong>passed</strong>: Approved Docker Registries and Forbidden Commands. However, no policies enforce STO threshold requirements or SBOM freshness. The <code>Block_Critical_Vulnerabilities</code> custom policy step in Prod deploy uses <code>Ignore</code> failure strategy. Framework mapping: <strong>SOC2 CC5.2, CC8.1 | NIST CA-7, CM-3 | cATO 3.2 | PCI 6.5, 12.1</strong></div></div></div>
+<div class="table-wrap"><table><thead><tr><th>Residual Risk Category</th><th>Count</th><th>Severity</th><th>SOC 2</th><th>NIST 800-53</th><th>DoD cATO</th><th>PCI DSS 4.0</th><th>Status</th></tr></thead>
+<tbody><tr><td>Critical SCA CVEs (container image)</td><td><strong style="color:#ef4444">50+</strong></td><td><span class="badge badge-critical">CRITICAL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">RA-5</span><span class="ctrl-id">SI-2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">1.0</span><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.1</span><span class="ctrl-id">11.3</span></div></td><td><span class="badge badge-fail">UNMITIGATED</span></td></tr>
+<tr><td>Critical SAST finding (gRPC)</td><td><strong style="color:#ef4444">1</strong></td><td><span class="badge badge-critical">CRITICAL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span><span class="ctrl-id">CC8.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">SA-11</span><span class="ctrl-id">RA-5</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.2.3</span><span class="ctrl-id">6.5.1</span></div></td><td><span class="badge badge-fail">UNMITIGATED</span></td></tr>
+<tr><td>Severity thresholds bypassed</td><td><strong style="color:#f97316">ALL</strong></td><td><span class="badge badge-high">HIGH</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.2</span><span class="ctrl-id">CC7.3</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">RA-5</span><span class="ctrl-id">SI-2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.1</span><span class="ctrl-id">11.3</span></div></td><td><span class="badge badge-fail">WEAK CONTROL</span></td></tr>
+<tr><td>EOL/Outdated components</td><td><strong style="color:#f59e0b">12</strong></td><td><span class="badge badge-medium">MEDIUM</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">SR-4</span><span class="ctrl-id">SI-2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.2</span></div></td><td><span class="badge badge-unable">MONITORING</span></td></tr>
+<tr><td>Pending security exemptions</td><td><strong style="color:#f59e0b">5</strong></td><td><span class="badge badge-medium">MEDIUM</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC5.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CA-7</span><span class="ctrl-id">CM-3</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.4</span></div></td><td><span class="badge badge-unable">PENDING REVIEW</span></td></tr>
+<tr><td>OPA policies with limited scope</td><td><strong style="color:#38bdf8">2</strong></td><td><span class="badge badge-low">LOW</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC5.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CM-3</span><span class="ctrl-id">CA-7</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.5</span></div></td><td><span class="badge badge-na">PARTIAL</span></td></tr></tbody></table></div></div>
+<div class="section"><div class="section-header"><h2>NIST SP 800-53 Control Coverage Grid</h2></div>
+<div class="coverage-grid"><div class="ctrl-cell covered"><div class="ctrl-cell-id">SR-4</div><div class="ctrl-cell-label">Provenance</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">SR-3</div><div class="ctrl-cell-label">Supply Chain Controls</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">SR-11</div><div class="ctrl-cell-label">Component Authenticity</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">SA-11</div><div class="ctrl-cell-label">Developer Testing</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">SA-11(1)</div><div class="ctrl-cell-label">Static Analysis</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">SA-12</div><div class="ctrl-cell-label">Supply Chain Protection</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">SI-7</div><div class="ctrl-cell-label">Software Integrity</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">RA-5</div><div class="ctrl-cell-label">Vulnerability Scanning</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">SI-2</div><div class="ctrl-cell-label">Flaw Remediation</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">IA-5</div><div class="ctrl-cell-label">Authenticator Mgmt</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">SC-28</div><div class="ctrl-cell-label">Protection at Rest</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">CM-2</div><div class="ctrl-cell-label">Baseline Config</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">CM-6</div><div class="ctrl-cell-label">Config Settings</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">CA-7</div><div class="ctrl-cell-label">Continuous Monitoring</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">CM-3</div><div class="ctrl-cell-label">Config Change Control</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">CM-4</div><div class="ctrl-cell-label">Impact Analysis</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">CM-3(2)</div><div class="ctrl-cell-label">Test/Validate Changes</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">CA-6</div><div class="ctrl-cell-label">Authorization</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">AU-2</div><div class="ctrl-cell-label">Event Logging</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">AU-3</div><div class="ctrl-cell-label">Content of Audit Records</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">AU-6</div><div class="ctrl-cell-label">Audit Review</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">CA-2</div><div class="ctrl-cell-label">Control Assessments</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">CA-7(1)</div><div class="ctrl-cell-label">Independent Assessment</div></div></div>
+<div style="display:flex;gap:16px;margin-top:12px;font-size:11px;color:#64748b;">
+<span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:rgba(34,197,94,0.3);border:1px solid #22c55e;border-radius:2px;display:inline-block"></span> Covered (18/23)</span>
+<span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:rgba(239,68,68,0.2);border:1px solid #ef4444;border-radius:2px;display:inline-block"></span> Gap (5/23)</span>
+</div></div>
+<div class="section"><div class="section-header"><h2>Generated OPA Rego Policies</h2></div>
+<div class="policy-list"><div class="policy-item"><div class="policy-info"><div class="policy-name">severity_thresholds.rego</div><div class="policy-desc">Enforce fail_on_severity on all STO scanner steps (critical or high)</div><div class="policy-meta"><span class="badge badge-high">HIGH</span><span class="ctrl-id">RA-5</span><span class="ctrl-id">SI-2</span><span class="fw-pill fw-nist">NIST</span><span class="fw-pill fw-soc2">SOC2</span><span class="fw-pill fw-cato">cATO</span><span class="fw-pill fw-pci">PCI</span></div></div><code style="font-size:11px;color:#475569">.agent/output/generated-policies/severity_thresholds.rego</code></div>
+<div class="policy-item"><div class="policy-info"><div class="policy-name">opa_policy_on_save.rego</div><div class="policy-desc">Pipeline save governance — require scanners, SBOM, and approval gates on save</div><div class="policy-meta"><span class="badge badge-high">HIGH</span><span class="ctrl-id">CM-3</span><span class="ctrl-id">CM-4</span><span class="fw-pill fw-nist">NIST</span><span class="fw-pill fw-soc2">SOC2</span><span class="fw-pill fw-cato">cATO</span><span class="fw-pill fw-pci">PCI</span></div></div><code style="font-size:11px;color:#475569">.agent/output/generated-policies/opa_policy_on_save.rego</code></div></div></div>
+<div class="section"><div class="section-header"><h2>Proposed Auto-Remediations</h2></div>
+<div class="remediation"><div class="remediation-header"><div><div class="remediation-title">REM-01: Enforce Severity Thresholds on All STO Steps — HIGH P1</div><div style="font-size:11px;color:#64748b;margin-top:4px">Closes: SOC2 CC7.2/CC7.3 | NIST RA-5/SI-2 | cATO 3.2 | PCI 6.3.1/11.3</div></div><span class="approve-btn">✓ Approve to apply via MCP</span></div><div class="remediation-body"><div class="diff-label">YAML diff — set fail_on_severity on Snyk SAST step</div><pre class="diff-block"><span class="diff-context">                        - step:
+                            type: Snyk
+                            name: Snyk SAST
+                            identifier: Snyk_SAST
+                            spec:
+                              advanced:</span>
+<span class="diff-add">                                fail_on_severity: critical</span>
+<span class="diff-context">                              ingestion:
+                                file: sto_tests/scan_tools/snyk/test_data/001</span>
+</pre></div></div>
+<div class="remediation"><div class="remediation-header"><div><div class="remediation-title">REM-02: Remove Ignore/MarkAsSuccess Failure Strategies from Security Steps — HIGH P1</div><div style="font-size:11px;color:#64748b;margin-top:4px">Closes: SOC2 CC7.2/CC7.3 | NIST RA-5/SI-2 | cATO 3.2 | PCI 6.3.1/11.3</div></div><span class="approve-btn">✓ Approve to apply via MCP</span></div><div class="remediation-body"><div class="diff-label">YAML diff — change BlackDuck failure strategy to fail pipeline</div><pre class="diff-block"><span class="diff-context">                        - step:
+                            type: BlackDuck
+                            name: BlackDuck
+                            identifier: BlackDuck</span>
+<span class="diff-context">                            failureStrategies:
+                              - onFailure:
+                                  errors:
+                                    - AllErrors
+                                  action:</span>
+<span class="diff-add">                                    type: Abort</span>
+<span class="diff-context">                            # Removes: type: MarkAsSuccess</span>
+</pre></div></div>
+<div class="remediation"><div class="remediation-header"><div><div class="remediation-title">REM-03: Attach OPA Policy Set On Save — HIGH P2</div><div style="font-size:11px;color:#64748b;margin-top:4px">Closes: SOC2 CC8.1 | NIST CM-3/CM-4 | cATO 3.2 | PCI 6.4</div></div><span class="approve-btn">✓ Approve to apply via MCP</span></div><div class="remediation-body"><div class="diff-label">OPA Policy Set configuration — attach on save evaluation</div><pre class="diff-block"><span class="diff-context"># Create Policy Set via Harness API:</span>
+<span class="diff-add">policy_set:
+  name: Pipeline Save Governance
+  identifier: Pipeline_Save_Governance
+  action: onsave
+  type: pipeline
+  enabled: true
+  policies:
+    - identifier: save_governance
+      severity: error</span>
+<span class="diff-context"># Apply generated: opa_policy_on_save.rego</span>
+</pre></div></div>
+<div class="remediation"><div class="remediation-header"><div><div class="remediation-title">REM-04: Upgrade Base Image from Ubuntu 18.04 (EOL) — CRITICAL P0</div><div style="font-size:11px;color:#64748b;margin-top:4px">Closes: SOC2 CC7.1 | NIST RA-5/SI-2/SR-4 | cATO 1.0/3.1 | PCI 6.3.1/6.3.2</div></div><span class="approve-btn">✓ Approve to apply via MCP</span></div><div class="remediation-body"><div class="diff-label">Dockerfile change — upgrade base image to supported Ubuntu LTS</div><pre class="diff-block"><span class="diff-context"># In Dockerfile (Boutique_Application repo):</span>
+<span class="diff-add">FROM ubuntu:22.04 AS base
+# Replaces: FROM ubuntu:18.04</span>
+<span class="diff-context"># This eliminates 50+ critical CVEs from EOL packages</span>
+</pre></div></div></div>
+<div class="section"><div class="section-header"><h2>AGR Evidence Log</h2></div>
+<div class="table-wrap" style="padding:20px"><div class="evidence-timeline"><div class="ev-item"><div class="ev-dot blue"></div><div class="ev-ts">2026-05-15T15:10:00Z</div><div class="ev-msg"><strong>AGR INIT</strong> — Assessment started. Target: demo/Platform_Engineering/End2End_Delivery_Pipeline</div></div>
+<div class="ev-item"><div class="ev-dot blue"></div><div class="ev-ts">2026-05-15T15:10:05Z</div><div class="ev-msg"><strong>DISCOVER</strong> — Pipeline retrieved via MCP. Remote store: org.End2End_Delivery_Pipeline (main-platformdemo branch)</div></div>
+<div class="ev-item"><div class="ev-dot blue"></div><div class="ev-ts">2026-05-15T15:10:10Z</div><div class="ev-msg"><strong>EXECUTION</strong> — Latest execution jLadMb6XSAOSaZL7FSr_-A (Run #1140) identified. Status: <strong style="color:#ef4444">Failed</strong> (Jira key null)</div></div>
+<div class="ev-item"><div class="ev-dot green"></div><div class="ev-ts">2026-05-15T15:11:00Z</div><div class="ev-msg"><strong>PASS 1 START</strong> — Structural assessment of 14-control checklist initiated</div></div>
+<div class="ev-item"><div class="ev-dot green"></div><div class="ev-ts">2026-05-15T15:11:30Z</div><div class="ev-msg"><strong>CHECK 01-03</strong> — Supply Chain controls assessed. SBOM Gen: PASS, Policy Enforcement: PASS, Signing: PASS</div></div>
+<div class="ev-item"><div class="ev-dot green"></div><div class="ev-ts">2026-05-15T15:12:00Z</div><div class="ev-msg"><strong>CHECK 04-08</strong> — Security Testing controls assessed. SAST: PASS, SCA: PASS, Secrets: PASS, Container: PASS, IaC: PASS</div></div>
+<div class="ev-item"><div class="ev-dot green"></div><div class="ev-ts">2026-05-15T15:12:30Z</div><div class="ev-msg"><strong>CHECK 09-11</strong> — Governance controls assessed. OPA Run: PASS, OPA Save: UNABLE, Thresholds: FAIL</div></div>
+<div class="ev-item"><div class="ev-dot green"></div><div class="ev-ts">2026-05-15T15:13:00Z</div><div class="ev-msg"><strong>CHECK 12-14</strong> — Deployment & Audit controls assessed. Approval: PASS, Audit: PASS, Evidence: PASS</div></div>
+<div class="ev-item"><div class="ev-dot amber"></div><div class="ev-ts">2026-05-15T15:13:30Z</div><div class="ev-msg"><strong>PASS 1 COMPLETE</strong> — Score: 85% (11 passed, 2 failed, 1 unable). 2 HIGH severity gaps.</div></div>
+<div class="ev-item"><div class="ev-dot red"></div><div class="ev-ts">2026-05-15T15:14:00Z</div><div class="ev-msg"><strong>PASS 2 START</strong> — Residual risk assessment of execution jLadMb6XSAOSaZL7FSr_-A</div></div>
+<div class="ev-item"><div class="ev-dot red"></div><div class="ev-ts">2026-05-15T15:14:30Z</div><div class="ev-msg"><strong>STO FINDINGS</strong> — 527 security issues detected. 50+ Critical SCA in container image. 1 Critical SAST (gRPC).</div></div>
+<div class="ev-item"><div class="ev-dot red"></div><div class="ev-ts">2026-05-15T15:15:00Z</div><div class="ev-msg"><strong>SBOM ANALYSIS</strong> — SBOM score 8.17/10. 2 component drifts. 12 EOL/outdated packages. 5 pending exemptions.</div></div>
+<div class="ev-item"><div class="ev-dot amber"></div><div class="ev-ts">2026-05-15T15:15:15Z</div><div class="ev-msg"><strong>OPA EVALUATION</strong> — 2 policy sets passed (on run). Block_Critical_Vulnerabilities policy in Prod has Ignore failure strategy.</div></div>
+<div class="ev-item"><div class="ev-dot red"></div><div class="ev-ts">2026-05-15T15:15:30Z</div><div class="ev-msg"><strong>RESIDUAL RISK</strong> — Critical: thresholds bypassed, CVEs shipped to QA. Pipeline failed at QA stage (Jira integration error, not security gate).</div></div>
+<div class="ev-item"><div class="ev-dot blue"></div><div class="ev-ts">2026-05-15T15:16:00Z</div><div class="ev-msg"><strong>POLICIES GENERATED</strong> — 2 OPA Rego policies written: severity_thresholds.rego, opa_policy_on_save.rego</div></div>
+<div class="ev-item"><div class="ev-dot blue"></div><div class="ev-ts">2026-05-15T15:16:30Z</div><div class="ev-msg"><strong>REPORT GENERATED</strong> — Evidence artifact compiled. 4 remediations proposed. Awaiting approval for auto-apply.</div></div></div></div></div>
+<div class="footer"><div class="footer-text">
+<strong>Generated by AGR V2 Agent</strong> &nbsp;|&nbsp; ATO Evidence Package &nbsp;|&nbsp; Do Not Modify &nbsp;|&nbsp;
+Pipeline: End2End Delivery Pipeline (End2End_Delivery_Pipeline) &nbsp;|&nbsp; Execution: jLadMb6XSAOSaZL7FSr_-A &nbsp;|&nbsp;
+Run #1140 &nbsp;|&nbsp; 2026-05-15T15:16:33Z &nbsp;|&nbsp; Account: NjU5NDczNGEtMTE1My00Mz &nbsp;|&nbsp; Project: Platform_Engineering
+</div></div></div></body></html>
