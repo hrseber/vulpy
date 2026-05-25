@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGR Compliance Posture Assessment  CI-pipeline | lsdeqaint</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0f172a; color: #e2e8f0; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
+.page { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+.header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 60%, #0c1a2e 100%); border: 1px solid #334155; border-radius: 12px; padding: 36px 40px; margin-bottom: 28px; text-align: center; position: relative; overflow: hidden; }
+.header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(56,189,248,0.07) 0%, transparent 70%); pointer-events: none; }
+.header-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); border-radius: 100px; padding: 4px 16px; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #38bdf8; margin-bottom: 16px; }
+.header-badge::before { content: ''; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+h1.title { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; color: #f1f5f9; line-height: 1.2; margin-bottom: 8px; }
+h1.title span { color: #38bdf8; }
+.subtitle { font-size: 1rem; color: #94a3b8; margin-bottom: 24px; }
+.meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 24px; }
+.meta-item { background: rgba(255,255,255,0.04); border: 1px solid #1e293b; border-radius: 8px; padding: 10px 14px; text-align: left; }
+.meta-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; margin-bottom: 3px; }
+.meta-value { font-size: 13px; font-weight: 600; color: #cbd5e1; font-family: 'SF Mono', 'Fira Code', monospace; }
+.summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card { background: #1e293b; border-radius: 10px; padding: 20px 24px; border: 1px solid #334155; position: relative; overflow: hidden; }
+.stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
+.stat-card.total::after { background: #38bdf8; }
+.stat-card.passed::after { background: #22c55e; }
+.stat-card.failed::after { background: #ef4444; }
+.stat-card.score::after { background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #22c55e 100%); }
+.stat-number { font-size: 2.4rem; font-weight: 800; line-height: 1; }
+.stat-number.blue { color: #38bdf8; } .stat-number.green { color: #22c55e; } .stat-number.red { color: #ef4444; } .stat-number.amber { color: #f59e0b; }
+.stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b; margin-top: 4px; }
+.stat-sub { font-size: 11px; color: #475569; margin-top: 6px; }
+.section { margin-bottom: 28px; }
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.section-header h2 { font-size: 0.95rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; }
+.section-header::before { content: ''; display: block; width: 3px; height: 18px; background: #38bdf8; border-radius: 2px; }
+.pass-1-badge { background: rgba(56,189,248,0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; }
+.pass-2-badge { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; }
+.table-wrap { background: #1e293b; border-radius: 10px; border: 1px solid #334155; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: #0f172a; border-bottom: 2px solid #334155; }
+thead th { padding: 11px 14px; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid #0f172a; transition: background 0.15s; }
+tbody tr:hover { background: rgba(56,189,248,0.04); }
+tbody td { padding: 11px 14px; font-size: 12.5px; vertical-align: top; }
+.check-num { font-weight: 700; color: #475569; font-size: 11px; }
+.check-name { font-weight: 600; color: #cbd5e1; }
+.check-group { font-size: 10px; color: #475569; margin-top: 2px; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.badge-critical { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.badge-high { background: rgba(249,115,22,0.15); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
+.badge-medium { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.badge-low { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
+.badge-pass { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+.badge-fail { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.badge-na { background: rgba(148,163,184,0.1); color: #64748b; border: 1px solid rgba(148,163,184,0.2); }
+.badge-unable { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+.ctrl-ids { display: flex; flex-wrap: wrap; gap: 3px; }
+.ctrl-id { background: rgba(56,189,248,0.08); color: #7dd3fc; border: 1px solid rgba(56,189,248,0.15); border-radius: 3px; padding: 1px 5px; font-size: 9.5px; font-weight: 600; font-family: 'SF Mono', 'Fira Code', monospace; white-space: nowrap; }
+.fix { font-size: 11.5px; color: #94a3b8; line-height: 1.45; }
+.fix strong { color: #cbd5e1; }
+.fix code { background: rgba(56,189,248,0.08); color: #7dd3fc; border-radius: 3px; padding: 0 4px; font-size: 10.5px; font-family: 'SF Mono', 'Fira Code', monospace; }
+.residual-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.risk-card { background: #1e293b; border-radius: 10px; padding: 18px 20px; border: 1px solid #334155; }
+.risk-card.critical { border-left: 3px solid #ef4444; }
+.risk-card.high { border-left: 3px solid #f97316; }
+.risk-card.medium { border-left: 3px solid #f59e0b; }
+.risk-card.info { border-left: 3px solid #38bdf8; }
+.risk-title { font-weight: 700; color: #e2e8f0; margin-bottom: 8px; font-size: 13px; }
+.risk-body { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+.risk-body strong { color: #cbd5e1; }
+.risk-body code { background: rgba(56,189,248,0.08); color: #7dd3fc; border-radius: 3px; padding: 0 4px; font-family: monospace; }
+.coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+.ctrl-cell { background: #1e293b; border-radius: 6px; padding: 8px 10px; border: 1px solid #334155; }
+.ctrl-cell.covered { border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.05); }
+.ctrl-cell.gap { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05); }
+.ctrl-cell-id { font-size: 10px; font-weight: 700; font-family: 'SF Mono', monospace; color: #94a3b8; }
+.ctrl-cell.covered .ctrl-cell-id { color: #22c55e; }
+.ctrl-cell.gap .ctrl-cell-id { color: #f87171; }
+.ctrl-cell-label { font-size: 9px; color: #475569; margin-top: 2px; }
+.remediation { background: #1e293b; border-radius: 10px; border: 1px solid #334155; margin-bottom: 14px; overflow: hidden; }
+.remediation-header { padding: 12px 18px; background: #0f172a; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.remediation-title { font-weight: 700; color: #e2e8f0; font-size: 13px; }
+.remediation-body { padding: 18px; }
+.diff-block { background: #0f172a; border-radius: 6px; padding: 14px; font-family: 'SF Mono', monospace; font-size: 11px; line-height: 1.6; overflow-x: auto; margin: 8px 0; border: 1px solid #1e293b; white-space: pre; }
+.diff-add { color: #4ade80; }
+.diff-context { color: #64748b; }
+.diff-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; margin-bottom: 6px; }
+.approve-btn { display: inline-flex; align-items: center; gap: 6px; background: rgba(56,189,248,0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: 600; }
+.policy-list { display: flex; flex-direction: column; gap: 8px; }
+.policy-item { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.policy-info { flex: 1; min-width: 200px; }
+.policy-name { font-weight: 700; color: #7dd3fc; font-family: 'SF Mono', monospace; font-size: 12px; }
+.policy-desc { font-size: 11.5px; color: #94a3b8; margin-top: 3px; }
+.policy-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.fw-pill { padding: 2px 8px; border-radius: 100px; font-size: 9.5px; font-weight: 700; }
+.fw-soc2 { background: rgba(167,139,250,0.15); color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); }
+.fw-nist { background: rgba(56,189,248,0.12); color: #38bdf8; border: 1px solid rgba(56,189,248,0.25); }
+.fw-slsa { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+.fw-cato { background: rgba(249,115,22,0.12); color: #fb923c; border: 1px solid rgba(249,115,22,0.25); }
+.fw-pci { background: rgba(244,63,94,0.12); color: #fb7185; border: 1px solid rgba(244,63,94,0.25); }
+.evidence-timeline { display: flex; flex-direction: column; gap: 0; }
+.ev-item { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid #1e293b; }
+.ev-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.ev-dot.green { background: #22c55e; } .ev-dot.red { background: #ef4444; } .ev-dot.blue { background: #38bdf8; } .ev-dot.amber { background: #f59e0b; }
+.ev-ts { font-family: 'SF Mono', monospace; font-size: 10px; color: #475569; flex-shrink: 0; width: 170px; }
+.ev-msg { font-size: 12px; color: #94a3b8; }
+.ev-msg strong { color: #cbd5e1; }
+.footer { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px 20px; text-align: center; margin-top: 32px; }
+.footer-text { font-size: 11px; color: #475569; letter-spacing: 0.04em; }
+.footer-text strong { color: #64748b; }
+@media (max-width: 768px) { .summary-bar { grid-template-columns: repeat(2, 1fr); } .meta-grid { grid-template-columns: repeat(2, 1fr); } h1.title { font-size: 1.4rem; } }
+</style></head><body><div class="page">
+<div class="header"><div class="header-badge"> ATO Evidence Package</div>
+<h1 class="title">COMPLIANCE POSTURE <span>ASSESSMENT</span></h1>
+<p class="subtitle">Automated Governance &amp; Remediation (AGR)  Two-Pass Compliance Analysis</p>
+<div class="meta-grid"><div class="meta-item"><div class="meta-label">Account</div><div class="meta-value">ZGUwYmIxOTUtZTE4Ni00Nm</div></div><div class="meta-item"><div class="meta-label">Organization</div><div class="meta-value">leidos</div></div><div class="meta-item"><div class="meta-label">Project</div><div class="meta-value">lsdeqaint</div></div><div class="meta-item"><div class="meta-label">Pipeline</div><div class="meta-value">CI-pipeline (cipipeline)</div></div><div class="meta-item"><div class="meta-label">Execution ID</div><div class="meta-value">t9oZK5lNRd-_UIwAKhvUnw</div></div><div class="meta-item"><div class="meta-label">Run Sequence</div><div class="meta-value">#19</div></div><div class="meta-item"><div class="meta-label">Assessment Time</div><div class="meta-value">2026-05-25T18:05:00Z</div></div><div class="meta-item"><div class="meta-label">Triggered By</div><div class="meta-value">Rudy Seber (AGR Assessor PLUS, external) — original run by Rick Goodwin</div></div><div class="meta-item"><div class="meta-label">Frameworks</div><div class="meta-value">SOC2 · NIST 800-53 · SLSA · DoD cATO · PCI DSS 4.0</div></div><div class="meta-item"><div class="meta-label">Branch / Commit</div><div class="meta-value">policies_harness / 5045d24</div></div><div class="meta-item"><div class="meta-label">Repository</div><div class="meta-value">mission-studio/policy-as-code</div></div><div class="meta-item"><div class="meta-label">Assessment Mode</div><div class="meta-value">FULL (Pass 1 + Pass 2)</div></div></div></div>
+<div class="summary-bar">
+<div class="stat-card total"><div class="stat-number blue">14</div><div class="stat-label">Total Checks</div><div class="stat-sub">Structural controls assessed</div></div>
+<div class="stat-card passed"><div class="stat-number green">4</div><div class="stat-label">Passed</div><div class="stat-sub">Signing, OPA Run, Audit, Evidence</div></div>
+<div class="stat-card failed"><div class="stat-number red">8</div><div class="stat-label">Failed</div><div class="stat-sub">1 CRITICAL · 5 HIGH · 2 MEDIUM</div></div>
+<div class="stat-card score"><div class="stat-number amber">33%</div><div class="stat-label">Compliance Score</div><div class="stat-sub">Residual Risk: <strong style="color:#ef4444">HIGH</strong></div></div>
+</div>
+<div class="section"><div class="section-header"><h2>Pass 1  Structural Assessment</h2><span class="pass-1-badge">14-CONTROL CHECKLIST</span></div>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>Control</th><th>Severity</th><th>Status</th><th>SOC 2</th><th>NIST 800-53</th><th>SLSA</th><th>DoD cATO</th><th>PCI DSS 4.0</th><th>Finding &amp; Recommended Fix</th></tr></thead>
+<tbody><tr><td class="check-num">01</td><td><div class="check-name">SBOM Generation</div><div class="check-group">Supply Chain</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-fail"> FAIL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">SR-4</span><span class="ctrl-id">SA-11</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.2</span></div></td><td class="fix">No native <code>SbomOrchestration</code> (SCS) step found. Custom scripts emit <code>sbom.json</code> but findings are not normalized into Harness SCS. <strong>Fix:</strong> Add <code>SbomOrchestration</code> step in <code>CI_Package</code> after image push. Policy: <code>sbom_generation.rego</code></td></tr>
+<tr><td class="check-num">02</td><td><div class="check-name">SBOM Policy Enforcement</div><div class="check-group">Supply Chain</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-fail"> FAIL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">SR-3</span><span class="ctrl-id">SR-11</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.1</span></div></td><td class="fix">No <code>SbomPolicyEnforcement</code> step. Component deny/allow lists are not enforced before sign. <strong>Fix:</strong> Add <code>SbomPolicyEnforcement</code> step right after SBOM generation. Policy: <code>sbom_policy_enforcement.rego</code></td></tr>
+<tr><td class="check-num">03</td><td><div class="check-name">Artifact Signing</div><div class="check-group">Supply Chain</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-pass"> PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC6.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">SI-7</span><span class="ctrl-id">SA-12</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L2-L3</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.2</span></div></td><td class="fix"><code>CI_Sign</code> stage runs <code>ci-sign</code> using cosign keypair / keyless. <strong>Note:</strong> last execution recorded <code>signature_verified=false</code> — see Pass 2 finding.</td></tr>
+<tr><td class="check-num">04</td><td><div class="check-name">SAST</div><div class="check-group">Security Testing</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-fail"> FAIL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span><span class="ctrl-id">CC8.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">SA-11(1)</span><span class="ctrl-id">RA-5</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.2.3</span><span class="ctrl-id">6.5.1</span></div></td><td class="fix">SonarQube is invoked via a <code>Run</code> step (custom script), not the native STO <code>SonarqubeSecurity</code>/<code>Semgrep</code>/<code>Checkmarx</code> step. Findings are not centralized in STO. <strong>Fix:</strong> Add a native STO SAST step in <code>CI_Static_Analysis</code>. Policy: <code>sast_required.rego</code></td></tr>
+<tr><td class="check-num">05</td><td><div class="check-name">SCA</div><div class="check-group">Security Testing</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-fail"> FAIL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">RA-5</span><span class="ctrl-id">SR-4</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.1</span></div></td><td class="fix">OSV/SCA executed via custom shell, not the native STO <code>OwaspDependencyCheck</code>/<code>OsvScanner</code>/<code>Snyk</code> step. <strong>Fix:</strong> Replace with native STO SCA step. Policy: <code>sca_required.rego</code></td></tr>
+<tr style="background: rgba(239,68,68,0.04);"><td class="check-num">06</td><td><div class="check-name">Secret Detection (Gitleaks)</div><div class="check-group">Security Testing</div></td><td><span class="badge badge-critical">CRITICAL</span></td><td><span class="badge badge-fail"> FAIL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC6.1</span><span class="ctrl-id">CC6.7</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">IA-5</span><span class="ctrl-id">SC-28</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">1.0</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">8.2</span><span class="ctrl-id">8.6</span></div></td><td class="fix"><strong>CRITICAL:</strong> No <code>Gitleaks</code> (or any secret-scan) step is present anywhere in the pipeline. Hardcoded credentials in source can ship undetected. <strong>Fix:</strong> Add <code>Gitleaks</code> as the first step of <code>CI_Build</code>. Policy: <code>secret_detection_required.rego</code></td></tr>
+<tr><td class="check-num">07</td><td><div class="check-name">Container Scanning</div><div class="check-group">Security Testing</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-fail"> FAIL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">RA-5</span><span class="ctrl-id">SI-2</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.1</span><span class="ctrl-id">6.2.4</span></div></td><td class="fix">Trivy is executed in <code>CI_Dynamic_Analysis</code> as a <code>Run</code> step, not the native STO <code>AquaTrivy</code> step. Critical/high CVE counts are written to a JSON but not surfaced as STO issues. <strong>Fix:</strong> Replace with native STO <code>AquaTrivy</code> step targeting the pushed image.</td></tr>
+<tr><td class="check-num">08</td><td><div class="check-name">IaC Scanning</div><div class="check-group">Security Testing</div></td><td><span class="badge badge-medium">MEDIUM</span></td><td><span class="badge badge-fail"> FAIL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC6.1</span><span class="ctrl-id">CC7.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CM-2</span><span class="ctrl-id">CM-6</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">2.2</span></div></td><td class="fix">Pipeline supports <code>language=terraform</code> and exposes <code>checkov_framework</code>, but no native STO Checkov step exists. <strong>Fix:</strong> Add native STO <code>Checkov</code> step gated on <code>language == 'terraform'</code>.</td></tr>
+<tr><td class="check-num">09</td><td><div class="check-name">OPA Policy Set (On Run)</div><div class="check-group">Governance</div></td><td><span class="badge badge-high">HIGH</span></td><td><span class="badge badge-pass"> PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC5.2</span><span class="ctrl-id">CC8.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CA-7</span><span class="ctrl-id">CM-3</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.5</span><span class="ctrl-id">12.1</span></div></td><td class="fix"><strong>PASS:</strong> 5 policy gates wired (gate_pre_merge, gate_build, gate_scan, gate_A5, gate_sign), each evaluated at the appropriate lifecycle stage.</td></tr>
+<tr><td class="check-num">10</td><td><div class="check-name">OPA Policy Set (On Save)</div><div class="check-group">Governance</div></td><td><span class="badge badge-medium">MEDIUM</span></td><td><span class="badge badge-fail"> FAIL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC8.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CM-3</span><span class="ctrl-id">CM-4</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.4</span></div></td><td class="fix"><code>gate_pipeline_structure</code> policy set exists but is <strong>disabled</strong>. Structural policy issues are not caught at save-time. <strong>Fix:</strong> Enable the policy set with <code>type=pipeline</code> on save event. Policy: <code>opa_on_save_required.rego</code></td></tr>
+<tr><td class="check-num">11</td><td><div class="check-name">Severity Thresholds</div><div class="check-group">Governance</div></td><td><span class="badge badge-unable">UNABLE</span></td><td><span class="badge badge-unable"> UNABLE</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.2</span><span class="ctrl-id">CC7.3</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">RA-5</span><span class="ctrl-id">SI-2</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.1</span><span class="ctrl-id">11.3</span></div></td><td class="fix">No native STO scanner steps present (see checks 04–07), so <code>fail_on_severity</code> cannot be assessed at the step level. Thresholds are enforced indirectly via OPA gate_scan against custom payloads.</td></tr>
+<tr><td class="check-num">12</td><td><div class="check-name">Approval Gate Before Prod</div><div class="check-group">Deployment</div></td><td><span class="badge badge-unable">UNABLE</span></td><td><span class="badge badge-unable"> UNABLE</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC5.2</span><span class="ctrl-id">CC8.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CM-3(2)</span><span class="ctrl-id">CA-6</span></div></td><td><span style="color:#475569;font-size:11px">N/A</span></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.4.1</span><span class="ctrl-id">6.4.2</span></div></td><td class="fix"><strong>UNABLE TO ASSESS:</strong> No CD/Deployment stages present in this pipeline (CI-only, terminating at <code>gate_sign_policy_eval</code>). Control not applicable to this pipeline scope.</td></tr>
+<tr><td class="check-num">13</td><td><div class="check-name">Audit Trail</div><div class="check-group">Audit & Evidence</div></td><td><span class="badge badge-medium">MEDIUM</span></td><td><span class="badge badge-pass"> PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC4.1</span><span class="ctrl-id">CC7.3</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">AU-2</span><span class="ctrl-id">AU-3</span><span class="ctrl-id">AU-6</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">1.0</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">10.1</span><span class="ctrl-id">10.2</span></div></td><td class="fix"><strong>PASS:</strong> Harness account-wide audit trail captures every pipeline edit, run, and policy evaluation. Verified via <code>audit_event</code> resource.</td></tr>
+<tr><td class="check-num">14</td><td><div class="check-name">Evidence Export</div><div class="check-group">Audit & Evidence</div></td><td><span class="badge badge-medium">MEDIUM</span></td><td><span class="badge badge-pass"> PASS</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC4.1</span><span class="ctrl-id">CC7.4</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CA-2</span><span class="ctrl-id">CA-7(1)</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">L2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">1.0</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">12.4</span></div></td><td class="fix"><strong>PASS:</strong> <code>publish-reports</code> step pushes scan results, SBOM, and policy payloads to <code>security/policy-governance</code> GitLab repo for each lifecycle stage.</td></tr></tbody></table></div></div>
+<div class="section"><div class="section-header"><h2>Pass 2  Residual Risk Assessment</h2><span class="pass-2-badge">EXECUTION ANALYSIS</span></div>
+<div class="residual-grid"><div class="risk-card critical"><div class="risk-title">Unverified Signature on Production Artifact</div><div class="risk-body"><code>gate_sign</code> evaluation #27150783 returned <strong>WARNING</strong> with deny message: <em>"Artifact must be signed and verified before sign."</em> The <code>cosign-keyless</code> profile produced a signature reference but <code>signature_verified=false</code> and <code>tlog_upload=false</code>. The artifact shipped to Harbor anyway. Mapping: <strong>SOC2 CC6.1 | NIST SI-7, SA-12 | cATO 3.1 | PCI 6.2</strong></div></div>
+<div class="risk-card critical"><div class="risk-title">No Secret Scanning — Catastrophic Coverage Gap</div><div class="risk-body">Zero Gitleaks/secret-detection steps in the pipeline. AWS keys, GitLab PATs, Cosign passwords, or DB creds committed to source would reach Harbor and downstream environments completely unflagged. Mapping: <strong>SOC2 CC6.1, CC6.7 | NIST IA-5, SC-28 | cATO 1.0 | PCI 8.2, 8.6</strong></div></div>
+<div class="risk-card high"><div class="risk-title">Custom-Script Scanners Bypass Harness STO</div><div class="risk-body">SonarQube, OSV, OWASP Dep Check, Trivy, ZAP, and Checkov all run as raw <code>Run</code> steps. Findings live in side-channel JSON files in the governance repo, not in the STO issue feed. There is no centralized severity threshold, no waiver flow, and no exemption-aware gating. Mapping: <strong>SOC2 CC7.1 | NIST RA-5, SI-2 | PCI 6.3.1</strong></div></div>
+<div class="risk-card high"><div class="risk-title">On-Save Policy Gate Disabled</div><div class="risk-body"><code>gate_pipeline_structure</code> exists but <code>enabled=false</code>. Bad pipeline edits (missing scanners, missing gates, deletion of approval steps) are not blocked at save time — only at runtime, after the bad config has already been committed. Mapping: <strong>SOC2 CC8.1 | NIST CM-3, CM-4 | cATO 3.2</strong></div></div>
+<div class="risk-card medium"><div class="risk-title">Open POAMs Tracking Production Drift</div><div class="risk-body">2 active POAMs: <code>POAM-A-001</code> ArgoCD OutOfSync (api-gateway, due 2026-08-01) and <code>POAM-A-002</code> deployed image digest drift (due 2026-07-21). Both reflect real production state diverging from pipeline-approved artifacts. Mapping: <strong>NIST CM-3, CA-7 | cATO 3.2</strong></div></div>
+<div class="risk-card medium"><div class="risk-title">10 Policy Warnings Shipped</div><div class="risk-body">Last 10 policy evaluations all returned <code>warning</code> (not <code>deny</code>). Warning-only policies pass the gate, so any combination of warnings can ship. Without escalation rules, warnings are operationally equivalent to no policy. Mapping: <strong>SOC2 CC5.2 | NIST CM-3, CA-7 | cATO 3.2</strong></div></div></div>
+<div class="table-wrap"><table><thead><tr><th>Residual Risk Category</th><th>Count</th><th>Severity</th><th>SOC 2</th><th>NIST 800-53</th><th>DoD cATO</th><th>PCI DSS 4.0</th><th>Status</th></tr></thead>
+<tbody><tr><td>Unverified signed artifacts shipped</td><td><strong style="color:#ef4444">1</strong></td><td><span class="badge badge-critical">CRITICAL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC6.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">SI-7</span><span class="ctrl-id">SA-12</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.2</span></div></td><td><span class="badge badge-fail">UNMITIGATED</span></td></tr>
+<tr><td>Pipeline runs without secret scanning</td><td><strong style="color:#ef4444">19</strong></td><td><span class="badge badge-critical">CRITICAL</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC6.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">IA-5</span><span class="ctrl-id">SC-28</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">1.0</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">8.2</span><span class="ctrl-id">8.6</span></div></td><td><span class="badge badge-fail">UNMITIGATED</span></td></tr>
+<tr><td>Scanners bypass STO normalization</td><td><strong style="color:#f97316">6</strong></td><td><span class="badge badge-high">HIGH</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC7.1</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">RA-5</span><span class="ctrl-id">SI-2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.3.1</span><span class="ctrl-id">11.3</span></div></td><td><span class="badge badge-fail">UNMITIGATED</span></td></tr>
+<tr><td>Open POAMs in prod</td><td><strong style="color:#f59e0b">2</strong></td><td><span class="badge badge-medium">MEDIUM</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC5.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CM-3</span><span class="ctrl-id">CA-7</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.4</span></div></td><td><span class="badge badge-unable">TRACKED</span></td></tr>
+<tr><td>Policy warnings non-blocking</td><td><strong style="color:#f59e0b">10</strong></td><td><span class="badge badge-medium">MEDIUM</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC5.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CM-3</span><span class="ctrl-id">CA-7</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.4</span></div></td><td><span class="badge badge-unable">WARN-ONLY</span></td></tr>
+<tr><td>Active waivers (validated)</td><td><strong style="color:#94a3b8">2</strong></td><td><span class="badge badge-low">LOW</span></td><td><div class="ctrl-ids"><span class="ctrl-id">CC5.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">CM-3</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">3.2</span></div></td><td><div class="ctrl-ids"><span class="ctrl-id">6.4</span></div></td><td><span class="badge badge-pass">WAIVED</span></td></tr></tbody></table></div></div>
+<div class="section"><div class="section-header"><h2>NIST SP 800-53 Control Coverage Grid</h2></div>
+<div class="coverage-grid"><div class="ctrl-cell covered"><div class="ctrl-cell-id">AU-2</div><div class="ctrl-cell-label">Event Logging</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">AU-3</div><div class="ctrl-cell-label">Audit Content</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">AU-6</div><div class="ctrl-cell-label">Audit Review</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">CA-2</div><div class="ctrl-cell-label">Assessments</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">CA-6</div><div class="ctrl-cell-label">Authorization</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">CA-7</div><div class="ctrl-cell-label">Continuous Mon.</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">CM-2</div><div class="ctrl-cell-label">Baseline Cfg</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">CM-3</div><div class="ctrl-cell-label">Change Control</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">CM-4</div><div class="ctrl-cell-label">Impact Analysis</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">CM-6</div><div class="ctrl-cell-label">Cfg Settings</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">IA-5</div><div class="ctrl-cell-label">Authenticator Mgmt</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">RA-5</div><div class="ctrl-cell-label">Vuln Scanning</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">SA-11</div><div class="ctrl-cell-label">Dev Testing</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">SA-11(1)</div><div class="ctrl-cell-label">Static Analysis</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">SA-12</div><div class="ctrl-cell-label">Supply Chain</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">SC-28</div><div class="ctrl-cell-label">Data at Rest</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">SI-2</div><div class="ctrl-cell-label">Flaw Remediation</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">SI-7</div><div class="ctrl-cell-label">SW Integrity</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">SR-3</div><div class="ctrl-cell-label">SC Controls</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">SR-4</div><div class="ctrl-cell-label">Provenance</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">SR-11</div><div class="ctrl-cell-label">Authenticity</div></div>
+<div class="ctrl-cell covered"><div class="ctrl-cell-id">CM-14</div><div class="ctrl-cell-label">Signed Components</div></div>
+<div class="ctrl-cell gap"><div class="ctrl-cell-id">CM-3(2)</div><div class="ctrl-cell-label">Test Changes</div></div></div>
+<div style="display:flex;gap:16px;margin-top:12px;font-size:11px;color:#64748b;">
+<span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:rgba(34,197,94,0.3);border:1px solid #22c55e;border-radius:2px;display:inline-block"></span> Covered (9/23)</span>
+<span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:rgba(239,68,68,0.2);border:1px solid #ef4444;border-radius:2px;display:inline-block"></span> Gap (14/23)</span>
+</div></div>
+<div class="section"><div class="section-header"><h2>Generated OPA Rego Policies</h2></div>
+<div class="policy-list"><div class="policy-item"><div class="policy-info"><div class="policy-name">sbom_generation.rego</div><div class="policy-desc">Require SbomOrchestration step after build/push</div><div class="policy-meta"><span class="badge badge-high">HIGH</span><span class="ctrl-id">SR-4</span><span class="ctrl-id">SA-11</span><span class="fw-pill fw-slsa">SLSA L1</span><span class="fw-pill fw-nist">NIST</span><span class="fw-pill fw-soc2">SOC2</span><span class="fw-pill fw-cato">cATO 3.1</span><span class="fw-pill fw-pci">PCI 6.3.2</span></div></div><code style="font-size:11px;color:#475569">.agent/output/generated-policies/sbom_generation.rego</code></div>
+<div class="policy-item"><div class="policy-info"><div class="policy-name">sbom_policy_enforcement.rego</div><div class="policy-desc">Require SbomPolicyEnforcement step (deny/allow lists)</div><div class="policy-meta"><span class="badge badge-high">HIGH</span><span class="ctrl-id">SR-3</span><span class="ctrl-id">SR-11</span><span class="fw-pill fw-slsa">SLSA L2</span><span class="fw-pill fw-nist">NIST</span><span class="fw-pill fw-soc2">SOC2</span><span class="fw-pill fw-cato">cATO 3.1</span><span class="fw-pill fw-pci">PCI 6.3.1</span></div></div><code style="font-size:11px;color:#475569">.agent/output/generated-policies/sbom_policy_enforcement.rego</code></div>
+<div class="policy-item"><div class="policy-info"><div class="policy-name">sast_required.rego</div><div class="policy-desc">Require native STO SAST step (Semgrep/Checkmarx/SonarQube)</div><div class="policy-meta"><span class="badge badge-high">HIGH</span><span class="ctrl-id">SA-11(1)</span><span class="ctrl-id">RA-5</span><span class="fw-pill fw-nist">NIST</span><span class="fw-pill fw-soc2">SOC2</span><span class="fw-pill fw-cato">cATO 3.1</span><span class="fw-pill fw-pci">PCI 6.2.3</span></div></div><code style="font-size:11px;color:#475569">.agent/output/generated-policies/sast_required.rego</code></div>
+<div class="policy-item"><div class="policy-info"><div class="policy-name">sca_required.rego</div><div class="policy-desc">Require native STO SCA step (OWASP Dep Check/OSV/Snyk)</div><div class="policy-meta"><span class="badge badge-high">HIGH</span><span class="ctrl-id">RA-5</span><span class="ctrl-id">SR-4</span><span class="fw-pill fw-slsa">SLSA L1</span><span class="fw-pill fw-nist">NIST</span><span class="fw-pill fw-soc2">SOC2</span><span class="fw-pill fw-cato">cATO 3.1</span><span class="fw-pill fw-pci">PCI 6.3.1</span></div></div><code style="font-size:11px;color:#475569">.agent/output/generated-policies/sca_required.rego</code></div>
+<div class="policy-item" style="border-left:3px solid #ef4444"><div class="policy-info"><div class="policy-name">secret_detection_required.rego</div><div class="policy-desc">CRITICAL: Require Gitleaks step as first step in CI</div><div class="policy-meta"><span class="badge badge-critical">CRITICAL</span><span class="ctrl-id">IA-5</span><span class="ctrl-id">SC-28</span><span class="fw-pill fw-nist">NIST</span><span class="fw-pill fw-soc2">SOC2</span><span class="fw-pill fw-cato">cATO 1.0</span><span class="fw-pill fw-pci">PCI 8.2</span></div></div><code style="font-size:11px;color:#475569">.agent/output/generated-policies/secret_detection_required.rego</code></div>
+<div class="policy-item"><div class="policy-info"><div class="policy-name">sbom_attestation_required.rego</div><div class="policy-desc">Require attestation + tlog upload (SLSA provenance)</div><div class="policy-meta"><span class="badge badge-high">HIGH</span><span class="ctrl-id">SI-7</span><span class="ctrl-id">SA-12</span><span class="fw-pill fw-slsa">SLSA L2-L3</span><span class="fw-pill fw-nist">NIST</span><span class="fw-pill fw-soc2">SOC2</span><span class="fw-pill fw-cato">cATO 3.1</span><span class="fw-pill fw-pci">PCI 6.2</span></div></div><code style="font-size:11px;color:#475569">.agent/output/generated-policies/sbom_attestation_required.rego</code></div>
+<div class="policy-item"><div class="policy-info"><div class="policy-name">opa_on_save_required.rego</div><div class="policy-desc">Require enabled On-Save (type=pipeline) policy set</div><div class="policy-meta"><span class="badge badge-medium">MEDIUM</span><span class="ctrl-id">CM-3</span><span class="ctrl-id">CM-4</span><span class="fw-pill fw-nist">NIST</span><span class="fw-pill fw-soc2">SOC2</span><span class="fw-pill fw-cato">cATO 3.2</span><span class="fw-pill fw-pci">PCI 6.4</span></div></div><code style="font-size:11px;color:#475569">.agent/output/generated-policies/opa_on_save_required.rego</code></div></div></div>
+<div class="section"><div class="section-header"><h2>Proposed Auto-Remediations</h2></div>
+<div class="remediation"><div class="remediation-header"><div><div class="remediation-title">REM-01: Add Secret Detection (Gitleaks) — CRITICAL P0</div><div style="font-size:11px;color:#64748b;margin-top:4px">Closes: SOC2 CC6.1/CC6.7 | NIST IA-5/SC-28 | cATO 1.0 | PCI 8.2/8.6</div></div><span class="approve-btn"> Approve to apply via MCP</span></div><div class="remediation-body"><div class="diff-label">YAML diff — add Gitleaks step as the first step in CI_Build.spec.execution.steps</div><pre class="diff-block"><span class="diff-context">    - stage:
+        identifier: ci_build
+        spec:
+          execution:
+            steps:</span>
+<span class="diff-add">              - step:
+                  type: Gitleaks
+                  name: Secret Scan
+                  identifier: secret_scan
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      type: repository
+                      detection: auto
+                    advanced:
+                      log:
+                        level: info
+                      fail_on_severity: critical</span>
+<span class="diff-context">              - step:
+                  type: Run
+                  name: Validate Inputs</span>
+</pre></div></div>
+<div class="remediation"><div class="remediation-header"><div><div class="remediation-title">REM-02: Add SBOM Orchestration + Policy Enforcement — HIGH P1</div><div style="font-size:11px;color:#64748b;margin-top:4px">Closes: SOC2 CC7.1/CC7.2 | NIST SR-3/SR-4/SR-11/SA-11 | SLSA L1-L2 | cATO 3.1 | PCI 6.3.1/6.3.2</div></div><span class="approve-btn"> Approve to apply via MCP</span></div><div class="remediation-body"><div class="diff-label">YAML diff — append SCS steps to CI_Package after image push</div><pre class="diff-block"><span class="diff-context">    - stage:
+        identifier: ci_package
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Package Artifact</span>
+<span class="diff-add">              - step:
+                  type: SbomOrchestration
+                  name: Generate SBOM
+                  identifier: generate_sbom
+                  spec:
+                    tool:
+                      type: Syft
+                      spec:
+                        format: spdx-json
+                    source:
+                      type: image
+                      spec:
+                        image: <+pipeline.variables.HARBOR_URL>/<+pipeline.variables.HARBOR_PROJECT>/<+pipeline.variables.HARBOR_REPO>:<+pipeline.variables.IMAGE_TAG>
+                    attestation:
+                      type: cosign
+                      spec:
+                        privateKey: cosign_private_key_rg
+                        password: cosign_key_password_rg
+              - step:
+                  type: SbomPolicyEnforcement
+                  name: Enforce SBOM Policy
+                  identifier: enforce_sbom_policy
+                  spec:
+                    policy:
+                      store:
+                        type: harness
+                        spec:
+                          policySets:
+                            - org.scs_default_sbom_policy
+                    source:
+                      type: image
+                      spec:
+                        image: <+pipeline.variables.HARBOR_URL>/<+pipeline.variables.HARBOR_PROJECT>/<+pipeline.variables.HARBOR_REPO>:<+pipeline.variables.IMAGE_TAG></span>
+</pre></div></div>
+<div class="remediation"><div class="remediation-header"><div><div class="remediation-title">REM-03: Replace Run-Step Trivy with Native STO AquaTrivy — HIGH P1</div><div style="font-size:11px;color:#64748b;margin-top:4px">Closes: SOC2 CC7.1 | NIST RA-5/SI-2 | cATO 3.1 | PCI 6.3.1/6.2.4</div></div><span class="approve-btn"> Approve to apply via MCP</span></div><div class="remediation-body"><div class="diff-label">YAML diff — replace Run/trivy step with AquaTrivy in CI_Dynamic_Analysis</div><pre class="diff-block"><span class="diff-context">              - step:
+                  type: Run
+                  name: Trivy Container Scan</span>
+<span class="diff-add">              - step:
+                  type: AquaTrivy
+                  name: Trivy Container Scan
+                  identifier: ci_trivy_container
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      type: container
+                      detection: manual
+                      name: <+pipeline.variables.HARBOR_REPO>
+                      variant: <+pipeline.variables.IMAGE_TAG>
+                    advanced:
+                      log:
+                        level: info
+                      fail_on_severity: critical</span>
+</pre></div></div>
+<div class="remediation"><div class="remediation-header"><div><div class="remediation-title">REM-04: Enable On-Save Policy Set (gate_pipeline_structure) — MEDIUM P2</div><div style="font-size:11px;color:#64748b;margin-top:4px">Closes: SOC2 CC8.1 | NIST CM-3/CM-4 | cATO 3.2 | PCI 6.4</div></div><span class="approve-btn"> Approve to apply via MCP</span></div><div class="remediation-body"><div class="diff-label">Policy-set config — enable gate_pipeline_structure with type=pipeline</div><pre class="diff-block"><span class="diff-context">policy_set: gate_pipeline_structure</span>
+<span class="diff-add">  enabled: true
+  type: pipeline   # On Save
+  action: onsave
+  scope: project</span>
+</pre></div></div></div>
+<div class="section"><div class="section-header"><h2>AGR Evidence Log</h2></div>
+<div class="table-wrap" style="padding:20px"><div class="evidence-timeline"><div class="ev-item"><div class="ev-dot blue"></div><div class="ev-ts">2026-05-25T18:03:00Z</div><div class="ev-msg"><strong>AGR INIT</strong> — Assessor PLUS launched by Rudy Seber for target <code>cipipeline</code></div></div>
+<div class="ev-item"><div class="ev-dot blue"></div><div class="ev-ts">2026-05-25T18:03:05Z</div><div class="ev-msg"><strong>DISCOVERY</strong> — Resolved target: <code>leidos/lsdeqaint/cipipeline</code> (CI-pipeline). Latest execution: <code>t9oZK5lNRd-_UIwAKhvUnw</code> (Run #19, Success)</div></div>
+<div class="ev-item"><div class="ev-dot blue"></div><div class="ev-ts">2026-05-25T18:03:10Z</div><div class="ev-msg"><strong>PASS 1</strong> — Loaded YAML from GitLab remote store (.harness/message-me/ci_pipeline.yaml @ 0bdc198)</div></div>
+<div class="ev-item"><div class="ev-dot green"></div><div class="ev-ts">2026-05-25T18:03:20Z</div><div class="ev-msg"><strong>CHECK 03 PASS</strong> — Cosign signing wired in CI_Sign stage</div></div>
+<div class="ev-item"><div class="ev-dot red"></div><div class="ev-ts">2026-05-25T18:03:21Z</div><div class="ev-msg"><strong>CHECK 06 FAIL (CRITICAL)</strong> — No Gitleaks step found in any stage</div></div>
+<div class="ev-item"><div class="ev-dot red"></div><div class="ev-ts">2026-05-25T18:03:22Z</div><div class="ev-msg"><strong>CHECK 01-02 FAIL</strong> — No native SbomOrchestration / SbomPolicyEnforcement steps</div></div>
+<div class="ev-item"><div class="ev-dot red"></div><div class="ev-ts">2026-05-25T18:03:23Z</div><div class="ev-msg"><strong>CHECK 04-05, 07-08 FAIL</strong> — Scanners run as Run steps, bypassing STO normalization</div></div>
+<div class="ev-item"><div class="ev-dot green"></div><div class="ev-ts">2026-05-25T18:03:25Z</div><div class="ev-msg"><strong>CHECK 09 PASS</strong> — 5 OPA Policy gates wired (gate_pre_merge, gate_build, gate_scan, gate_A5, gate_sign)</div></div>
+<div class="ev-item"><div class="ev-dot red"></div><div class="ev-ts">2026-05-25T18:03:26Z</div><div class="ev-msg"><strong>CHECK 10 FAIL</strong> — gate_pipeline_structure (On Save) exists but is disabled</div></div>
+<div class="ev-item"><div class="ev-dot amber"></div><div class="ev-ts">2026-05-25T18:03:27Z</div><div class="ev-msg"><strong>CHECK 12 UNABLE</strong> — No CD/Deployment stages in scope; control N/A</div></div>
+<div class="ev-item"><div class="ev-dot green"></div><div class="ev-ts">2026-05-25T18:03:28Z</div><div class="ev-msg"><strong>CHECK 13-14 PASS</strong> — Audit Trail and Evidence Export verified</div></div>
+<div class="ev-item"><div class="ev-dot blue"></div><div class="ev-ts">2026-05-25T18:03:35Z</div><div class="ev-msg"><strong>PASS 2</strong> — Pulled policy_evaluation history (10 records, all status=warning)</div></div>
+<div class="ev-item"><div class="ev-dot red"></div><div class="ev-ts">2026-05-25T18:03:38Z</div><div class="ev-msg"><strong>RESIDUAL CRITICAL</strong> — gate_sign #27150783: artifact <code>signature_verified=false</code>, <code>tlog_upload=false</code>; warning-only, shipped</div></div>
+<div class="ev-item"><div class="ev-dot amber"></div><div class="ev-ts">2026-05-25T18:03:42Z</div><div class="ev-msg"><strong>POAM</strong> — 2 open POAMs (POAM-A-001 ArgoCD drift due 2026-08-01; POAM-A-002 image digest drift due 2026-07-21)</div></div>
+<div class="ev-item"><div class="ev-dot amber"></div><div class="ev-ts">2026-05-25T18:03:43Z</div><div class="ev-msg"><strong>WAIVERS</strong> — 2 active, validated (WVR-A-001 deploy window; WVR-A-002 privileged Falco)</div></div>
+<div class="ev-item"><div class="ev-dot blue"></div><div class="ev-ts">2026-05-25T18:04:00Z</div><div class="ev-msg"><strong>POLICIES GENERATED</strong> — 7 Rego policies emitted to <code>.agent/output/generated-policies/</code></div></div>
+<div class="ev-item"><div class="ev-dot blue"></div><div class="ev-ts">2026-05-25T18:04:30Z</div><div class="ev-msg"><strong>REMEDIATIONS DRAFTED</strong> — 4 YAML diffs prepared (REM-01 Gitleaks P0, REM-02 SBOM P1, REM-03 AquaTrivy P1, REM-04 On-Save P2)</div></div>
+<div class="ev-item"><div class="ev-dot green"></div><div class="ev-ts">2026-05-25T18:05:00Z</div><div class="ev-msg"><strong>AGR COMPLETE</strong> — Score 33% (4/12 applicable). Residual risk: HIGH. Awaiting human approval for remediations.</div></div></div></div></div>
+<div class="footer"><div class="footer-text">
+<strong>Generated by AGR Agent</strong> &nbsp;|&nbsp; ATO Evidence Package &nbsp;|&nbsp; Do Not Modify &nbsp;|&nbsp;
+Pipeline: CI-pipeline (cipipeline) &nbsp;|&nbsp; Execution: t9oZK5lNRd-_UIwAKhvUnw &nbsp;|&nbsp;
+Run #19 &nbsp;|&nbsp; 2026-05-25T18:05:00Z &nbsp;|&nbsp; Account: ZGUwYmIxOTUtZTE4Ni00Nm &nbsp;|&nbsp; Project: lsdeqaint
+</div></div></div></body></html>
