@@ -1,12 +1,63 @@
-# AGR Assessor PLUS V2 — Locked HTML renderer
-# Location in repo (REQUIRED): evidence/tooling/render.py
-# The agent fetches this file at bootstrap and runs it against
-# /harness/.agent/output/agr-data.json. The agent never modifies this file.
-# Do Not Modify the template without versioning the change.
+# AGR Renderer v2 — Locked HTML renderer with DELTA merge + count normalization
+# Location in repo (REQUIRED): evidence/tooling/render.py  (overwrites v1)
+# Behavior:
+#   1. If agr-data-delta.json AND /tmp/baseline.json exist (DELTA mode), merge the
+#      cached baseline Pass 1 content with the fresh delta fields, and materialize
+#      the merged result to agr-data.json for downstream consumers.
+#   2. Recompute passed/failed/unable/na and score_pct from the checks array in
+#      EVERY mode, enforcing the scoring rule deterministically (N/A and UNABLE
+#      excluded from the denominator). Model-typed counts are overwritten.
+#   3. Render the locked HTML template. The agent never modifies this file.
+# Backward compatible: with no delta file present, behaves like v1 plus normalization.
 
 import json
+import os
 
-d = json.load(open('/harness/.agent/output/agr-data.json'))
+BASE = '/harness/.agent/output'
+DELTA_PATH = f'{BASE}/agr-data-delta.json'
+DATA_PATH = f'{BASE}/agr-data.json'
+BASELINE_PATH = '/tmp/baseline.json'
+
+BASELINE_FIELDS_FROM_PASS1 = ['passed_sub', 'failed_sub']
+
+
+def load_data():
+    if os.path.exists(DELTA_PATH) and os.path.exists(BASELINE_PATH):
+        delta = json.load(open(DELTA_PATH))
+        b = json.load(open(BASELINE_PATH))
+        p = b['pass1']
+        d = dict(delta)
+        d['checks'] = p['checks']
+        for k in BASELINE_FIELDS_FROM_PASS1:
+            d[k] = p.get(k, '')
+        d['policies'] = b['policies']
+        d['remediations'] = b['remediations']
+        d['nist_800_53'] = b['nist_800_53']
+        d['coverage_covered'] = b['coverage_covered']
+        d['coverage_total'] = b['coverage_total']
+        print(f"DELTA merge: {len(p['checks'])} checks, {len(b['policies'])} policies, "
+              f"{len(b['remediations'])} remediations reused from baseline {b.get('baseline_timestamp','')}")
+        return d
+    return json.load(open(DATA_PATH))
+
+
+def normalize_counts(d):
+    counts = {'pass': 0, 'fail': 0, 'unable': 0, 'na': 0}
+    for ch in d.get('checks', []):
+        s = ch.get('status', '')
+        if s in counts:
+            counts[s] += 1
+    d['passed'] = counts['pass']
+    d['failed'] = counts['fail']
+    d['unable'] = counts['unable']
+    d['na'] = counts['na']
+    applicable = len(d.get('checks', [])) - counts['na'] - counts['unable']
+    d['score_pct'] = f"{round(counts['pass'] / applicable * 100)}%" if applicable > 0 else "N/A"
+    return d
+
+
+d = normalize_counts(load_data())
+json.dump(d, open(DATA_PATH, 'w'), ensure_ascii=False)
 
 STATUS_LABELS = {"pass": "\u2713 PASS", "fail": "\u2715 FAIL", "na": "\u2014 N/A", "unable": "\u26a0 UNABLE"}
 SEV_LABELS = {"critical": "CRITICAL", "high": "HIGH", "medium": "MEDIUM", "low": "LOW", "na": "N/A", "unable": "UNABLE"}
@@ -69,7 +120,6 @@ meta_items = "".join(f'<div class="meta-item"><div class="meta-label">{lbl}</div
 ])
 
 coverage_gap = d["coverage_total"] - d["coverage_covered"]
-
 html = f'''<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AGR Compliance Posture Assessment \u2014 {d["pipeline_name"]} | {d["project"]}</title>
