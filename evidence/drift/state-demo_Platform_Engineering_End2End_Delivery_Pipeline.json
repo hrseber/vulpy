@@ -1,10 +1,11 @@
 {
   "schema_version": 1,
   "yaml_sha256": "38f9cfca15ffe3989dda833fa52473bfc88796016d5a402ee9a3b3033fd062bf",
-  "captured_at": "2026-06-12T02:33:45Z",
-  "execution_id": "9Mqeo9RLTuWGwc8MBTgAXg",
-  "run_sequence": "1280",
+  "captured_at": "2026-06-12T02:51:29Z",
+  "execution_id": "g7TLy-J0R9yRrdQHsxVw2w",
+  "run_sequence": "1281",
   "pipe_key": "demo_Platform_Engineering_End2End_Delivery_Pipeline",
+  "branch": "main-pipeline_drift_sentinel",
   "pipeline_name": "End2End Delivery Pipeline",
   "pipeline_id": "End2End_Delivery_Pipeline",
   "stages": {
