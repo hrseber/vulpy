@@ -128,7 +128,7 @@ td {{ padding:10px 12px; font-size:12px; border-bottom:1px solid #0f172a; vertic
 <div class="verdict">\u25c9 {vlabel}</div>
 <h1>PIPELINE DRIFT <span>SENTINEL</span></h1>
 <div class="meta-line">{esc(r['pipeline_name'])} ({esc(r['pipeline_id'])}) · Run #{esc(r['run_sequence'])} · Execution {esc(r['execution_id'])}</div>
-<div class="meta-line">Captured: {esc(r['captured_at'])} · YAML sha {esc(r['yaml_sha256'][:12])} · Monitoring {r['monitored_stages']} stages / {r['monitored_steps']} steps / {len(r['templates'])} templates</div>
+<div class="meta-line">Captured: {esc(r['captured_at'])} · Branch: <span style="color:#a78bfa">{esc(r.get('branch','unknown'))}</span> · YAML sha {esc(r['yaml_sha256'][:12])} · Monitoring {r['monitored_stages']} stages / {r['monitored_steps']} steps / {len(r['templates'])} templates</div>
 {prior_line}
 <div class="summary">{esc(summary)}</div>
 </div>
