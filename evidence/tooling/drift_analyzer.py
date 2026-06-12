@@ -327,6 +327,13 @@ def main():
         verdict, findings = 'NO_DRIFT', []
     else:
         findings = diff(prior, snap)
+        if not findings and prior['yaml_sha256'] != snap['yaml_sha256']:
+            findings = [{'id': 'DR-01', 'severity': 'info', 'category': 'YAML_TEXT_CHANGED',
+                         'location': '<pipeline>',
+                         'before': f"sha {prior['yaml_sha256'][:12]}",
+                         'after': f"sha {snap['yaml_sha256'][:12]}",
+                         'detail': 'Pipeline YAML text changed (comments, descriptions, or whitespace) '
+                                   'with no structural impact on stages, steps, gates, or templates.'}]
         findings.sort(key=lambda f: -SEV_RANK.get(f['severity'], 0))
         for i, f in enumerate(findings, 1):
             f['id'] = f'DR-{i:02d}'
