@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drift Sentinel — End2End Delivery Pipeline</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background:#0f172a; color:#e2e8f0; font-family:system-ui,-apple-system,'Segoe UI',sans-serif; font-size:14px; line-height:1.5; }
+.page { max-width:1100px; margin:0 auto; padding:28px 20px; }
+.header { background:linear-gradient(135deg,#1e293b 0%,#0f172a 70%); border:1px solid #334155; border-radius:12px; padding:26px 30px; margin-bottom:20px; }
+.verdict { display:inline-block; background:#22c55e1a; color:#22c55e; border:1px solid #22c55e55; border-radius:100px; padding:5px 18px; font-size:12px; font-weight:800; letter-spacing:.12em; margin-bottom:12px; }
+h1 { font-size:1.5rem; font-weight:800; color:#f1f5f9; }
+h1 span { color:#38bdf8; }
+.meta-line { color:#64748b; font-size:12px; margin-top:6px; font-family:'SF Mono',monospace; }
+.summary { background:rgba(56,189,248,0.06); border-left:3px solid #22c55e; border-radius:6px; padding:12px 16px; margin-top:14px; color:#cbd5e1; font-size:13px; }
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.stat { background:#1e293b; border:1px solid #334155; border-radius:10px; padding:14px 18px; }
+.num { font-size:2rem; font-weight:800; line-height:1; }
+.lbl { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#64748b; margin-top:4px; }
+.section h2 { font-size:.85rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#94a3b8; margin:18px 0 10px; padding-left:10px; border-left:3px solid #38bdf8; }
+.wrap { background:#1e293b; border:1px solid #334155; border-radius:10px; overflow:hidden; }
+table { width:100%; border-collapse:collapse; }
+thead tr { background:#0f172a; border-bottom:2px solid #334155; }
+th { padding:9px 12px; text-align:left; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#475569; }
+td { padding:10px 12px; font-size:12px; border-bottom:1px solid #0f172a; vertical-align:top; }
+.mono { font-family:'SF Mono','Fira Code',monospace; font-size:11px; }
+.dim { color:#64748b; }
+.cat { font-weight:600; color:#cbd5e1; white-space:nowrap; }
+.before { color:#f87171; }
+.after { color:#4ade80; }
+.arrow { color:#475569; margin:0 8px; }
+.detail { color:#94a3b8; font-size:11px; margin-top:4px; }
+.footer { text-align:center; color:#475569; font-size:11px; margin-top:24px; padding:12px; border:1px solid #334155; border-radius:8px; background:#1e293b; }
+</style></head><body><div class="page">
+<div class="header">
+<div class="verdict">◉ NO DRIFT — VERIFIED UNCHANGED</div>
+<h1>PIPELINE DRIFT <span>SENTINEL</span></h1>
+<div class="meta-line">End2End Delivery Pipeline (End2End_Delivery_Pipeline) · Run #1273 · Execution E_Uh5kNrQcCCJ1AbcZCc5g</div>
+<div class="meta-line">Captured: 2026-06-12T01:51:08Z · YAML sha 565b6ba77f5d · Monitoring 8 stages / 90 steps / 8 templates</div>
+<div class="meta-line">Compared to: Run #1272 · 2026-06-12T01:30:35Z · sha 565b6ba77f5d</div>
+<div class="summary">Pipeline End2End_Delivery_Pipeline verified structurally unchanged since the previous run: all 8 stages, 90 steps, and 8 template references are intact.</div>
+</div>
+<div class="stats"><div class="stat" style="opacity:.35;border-bottom:3px solid #ef4444"><div class="num" style="color:#ef4444">0</div><div class="lbl">critical</div></div><div class="stat" style="opacity:.35;border-bottom:3px solid #f97316"><div class="num" style="color:#f97316">0</div><div class="lbl">high</div></div><div class="stat" style="opacity:.35;border-bottom:3px solid #f59e0b"><div class="num" style="color:#f59e0b">0</div><div class="lbl">medium</div></div><div class="stat" style="opacity:.35;border-bottom:3px solid #38bdf8"><div class="num" style="color:#38bdf8">0</div><div class="lbl">info</div></div></div>
+<div class="section"><h2>Findings</h2>
+<div class="wrap"><table><thead><tr><th>ID</th><th>Severity</th><th>Category</th><th>Location</th><th>Change</th></tr></thead>
+<tbody><tr><td colspan="5" style="text-align:center;color:#475569;padding:24px">No findings for this run.</td></tr></tbody></table></div></div>
+<div class="section"><h2>Template References</h2>
+<div class="wrap"><table><thead><tr><th>Template</th><th>Previous Version</th><th>Current Version</th><th>Status</th></tr></thead>
+<tbody><tr><td class="mono">SBOM_Policy_Enforcement</td><td class="mono dim">1.0</td><td class="mono">1.0</td><td><span style="color:#22c55e">stable</span></td></tr><tr><td class="mono">SLSA_Verification</td><td class="mono dim">1.2</td><td class="mono">1.2</td><td><span style="color:#22c55e">stable</span></td></tr><tr><td class="mono">Standard_K8s_Dev_Deploy</td><td class="mono dim">1.5.1</td><td class="mono">1.5.1</td><td><span style="color:#22c55e">stable</span></td></tr><tr><td class="mono">Wiz_IaC_Scan_Template</td><td class="mono dim">1.0</td><td class="mono">1.0</td><td><span style="color:#22c55e">stable</span></td></tr><tr><td class="mono">Wiz_SAST_Scan_Template</td><td class="mono dim">1.1</td><td class="mono">1.1</td><td><span style="color:#22c55e">stable</span></td></tr><tr><td class="mono">account.Functional_Testing</td><td class="mono dim">0.1</td><td class="mono">0.1</td><td><span style="color:#22c55e">stable</span></td></tr><tr><td class="mono">account.Load_Testing</td><td class="mono dim">0.1</td><td class="mono">0.1</td><td><span style="color:#22c55e">stable</span></td></tr><tr><td class="mono">account.Regression_Suite</td><td class="mono dim">0.2</td><td class="mono">0.2</td><td><span style="color:#22c55e">stable</span></td></tr></tbody></table></div></div>
+<div class="footer"><strong style="color:#64748b">Generated by Pipeline Drift Sentinel</strong> &nbsp;|&nbsp; Tamper-evident: this agent's own step is part of the monitored surface &nbsp;|&nbsp; demo_Platform_Engineering_End2End_Delivery_Pipeline &nbsp;|&nbsp; 2026-06-12T01:51:08Z</div>
+</div></body></html>
