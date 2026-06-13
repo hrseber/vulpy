@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "yaml_sha256": "08c657d80a9a56b843690aea52b8820caa1da255426fb098ad9d9bf2fdba2029",
+  "captured_at": "2026-06-13T12:27:16Z",
+  "execution_id": "",
+  "run_sequence": "",
+  "pipe_key": "demo_Platform_Engineering_Drift_Baseline_Authorizer",
+  "pipeline_name": "Drift Baseline Authorizer",
+  "pipeline_id": "Drift_Baseline_Authorizer",
+  "stages": {
+    "Human_Authorization": {
+      "type": "Approval",
+      "name": "Human Authorization",
+      "when": {
+        "condition": null,
+        "status": null
+      }
+    },
+    "Capture_Authorized_Baseline": {
+      "type": "SecurityTests",
+      "name": "Capture Authorized Baseline",
+      "when": {
+        "condition": null,
+        "status": null
+      }
+    }
+  },
+  "steps": {
+    "Human_Authorization/Approve_Baseline_Capture": {
+      "type": "HarnessApproval",
+      "name": "Approve Baseline Capture",
+      "when": {
+        "condition": null,
+        "status": null
+      },
+      "failure_actions": [],
+      "flags": {
+        "minimumCount": 1
+      },
+      "stage": "Human_Authorization"
+    },
+    "Human_Authorization/JiraApproval": {
+      "type": "JiraApproval",
+      "name": "JiraApproval",
+      "when": {
+        "condition": null,
+        "status": "Failure"
+      },
+      "failure_actions": [],
+      "flags": {},
+      "stage": "Human_Authorization"
+    },
+    "Capture_Authorized_Baseline/Approve_Baseline": {
+      "type": "Agent",
+      "name": "Approve Baseline",
+      "when": {
+        "condition": null,
+        "status": null
+      },
+      "failure_actions": [],
+      "flags": {},
+      "stage": "Capture_Authorized_Baseline"
+    }
+  },
+  "templates": {},
+  "template_hashes": {},
+  "authorization": {
+    "approved_at": "2026-06-13T12:27:16Z"
+  }
+}
