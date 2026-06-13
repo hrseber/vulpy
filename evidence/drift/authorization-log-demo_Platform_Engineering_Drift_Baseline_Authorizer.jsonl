@@ -1,1 +1,0 @@
-{"event": "BASELINE_AUTHORIZED", "ts": "2026-06-13T12:27:16Z", "pipe_key": "demo_Platform_Engineering_Drift_Baseline_Authorizer", "pipeline_id": "Drift_Baseline_Authorizer", "yaml_sha256": "08c657d80a9a56b843690aea52b8820caa1da255426fb098ad9d9bf2fdba2029", "monitored_stages": 2, "monitored_steps": 3, "authorization": {"approved_at": "2026-06-13T12:27:16Z"}}
