@@ -172,7 +172,6 @@ def build_snapshot(pipeline_bytes):
         'execution_id': os.environ.get('EXECUTION_ID', ''),
         'run_sequence': os.environ.get('RUN_SEQUENCE', ''),
         'pipe_key': os.environ.get('PIPE_KEY', ''),
-        'branch': os.environ.get('HOST_BRANCH', ''),
         'pipeline_name': pl.get('name', ''),
         'pipeline_id': pl.get('identifier', ''),
         'stages': stages,
@@ -307,61 +306,135 @@ def diff(prior, snap):
     return findings
 
 
+def load_ref(path, label):
+    if not os.path.exists(path):
+        return None
+    try:
+        ref = json.load(open(path))
+        if ref.get('schema_version') != SCHEMA_VERSION:
+            print(f"NOTE: {label} schema v{ref.get('schema_version')} != v{SCHEMA_VERSION}; treated as absent")
+            return None
+        return ref
+    except Exception as e:
+        print(f"NOTE: {label} unreadable ({e}); treated as absent")
+        return None
+
+
+def compare(ref, snap, prefix):
+    """Diff snap against a reference state. Returns (status, findings).
+    status is one of: NONE (no reference), CLEAN (identical), DRIFT (changes)."""
+    if ref is None:
+        return 'NONE', []
+    if ref['yaml_sha256'] == snap['yaml_sha256'] and \
+            ref.get('template_hashes', {}) == snap.get('template_hashes', {}):
+        return 'CLEAN', []
+    findings = diff(ref, snap)
+    if not findings and ref['yaml_sha256'] != snap['yaml_sha256']:
+        findings = [{'severity': 'info', 'category': 'YAML_TEXT_CHANGED', 'location': '<pipeline>',
+                     'before': f"sha {ref['yaml_sha256'][:12]}", 'after': f"sha {snap['yaml_sha256'][:12]}",
+                     'detail': 'Pipeline YAML text changed (comments, descriptions, or whitespace) '
+                               'with no structural impact on stages, steps, gates, or templates.'}]
+    findings.sort(key=lambda f: -SEV_RANK.get(f['severity'], 0))
+    for i, f in enumerate(findings, 1):
+        f['id'] = f'{prefix}-{i:02d}'
+    return 'DRIFT', findings
+
+
+def rollup(findings):
+    counts = {s: sum(1 for f in findings if f['severity'] == s) for s in SEV_RANK}
+    max_sev = next((s for s in ('critical', 'high', 'medium', 'info') if counts.get(s)), 'none')
+    return counts, max_sev
+
+
 def main():
     pipeline_bytes = open('/tmp/target-pipeline.yaml', 'rb').read()
     snap = build_snapshot(pipeline_bytes)
-    prior = None
-    if os.path.exists('/tmp/drift-state.json'):
-        try:
-            prior = json.load(open('/tmp/drift-state.json'))
-            if prior.get('schema_version') != SCHEMA_VERSION:
-                print(f"NOTE: prior state schema v{prior.get('schema_version')} != v{SCHEMA_VERSION}; re-baselining")
-                prior = None
-        except Exception as e:
-            print(f"NOTE: prior state unreadable ({e}); re-baselining")
-            prior = None
 
-    if prior is None:
-        verdict, findings = 'BASELINE', []
-    elif prior['yaml_sha256'] == snap['yaml_sha256'] and \
-            prior.get('template_hashes', {}) == snap.get('template_hashes', {}):
-        verdict, findings = 'NO_DRIFT', []
+    rolling_ref = load_ref('/tmp/drift-state.json', 'rolling state')
+    authorized_ref = load_ref('/tmp/authorized-baseline.json', 'authorized baseline')
+
+    # ROLLING comparison (since last run) — prefix DR
+    r_status, rolling_findings = compare(rolling_ref, snap, 'DR')
+    # AUTHORIZED-BASELINE comparison (since ATO/approval) — prefix AB
+    a_status, authorized_findings = compare(authorized_ref, snap, 'AB')
+
+    r_counts, r_max = rollup(rolling_findings)
+    a_counts, a_max = rollup(authorized_findings)
+
+    # Overall verdict prioritizes deviation from the authorized baseline when one exists,
+    # because that is the compliance-relevant signal in a regulated/Federal context.
+    if r_status == 'NONE':
+        rolling_verdict = 'BASELINE'
+    elif r_status == 'CLEAN':
+        rolling_verdict = 'NO_DRIFT'
     else:
-        findings = diff(prior, snap)
-        if not findings and prior['yaml_sha256'] != snap['yaml_sha256']:
-            findings = [{'id': 'DR-01', 'severity': 'info', 'category': 'YAML_TEXT_CHANGED',
-                         'location': '<pipeline>',
-                         'before': f"sha {prior['yaml_sha256'][:12]}",
-                         'after': f"sha {snap['yaml_sha256'][:12]}",
-                         'detail': 'Pipeline YAML text changed (comments, descriptions, or whitespace) '
-                                   'with no structural impact on stages, steps, gates, or templates.'}]
-        findings.sort(key=lambda f: -SEV_RANK.get(f['severity'], 0))
-        for i, f in enumerate(findings, 1):
-            f['id'] = f'DR-{i:02d}'
-        verdict = 'DRIFT' if findings else 'NO_DRIFT'
+        rolling_verdict = 'DRIFT' if rolling_findings else 'NO_DRIFT'
 
-    counts = {s: sum(1 for f in findings if f['severity'] == s) for s in SEV_RANK}
-    max_sev = next((s for s in ('critical', 'high', 'medium', 'info') if counts.get(s)), 'none')
+    if a_status == 'NONE':
+        authorized_verdict = 'UNAUTHORIZED'  # no approved baseline pinned yet
+    elif a_status == 'CLEAN':
+        authorized_verdict = 'COMPLIANT'
+    else:
+        authorized_verdict = 'DEVIATION' if authorized_findings else 'COMPLIANT'
+
+    # Top-level verdict/severity: authorized deviation dominates if present.
+    if authorized_verdict == 'DEVIATION':
+        verdict, max_sev, counts = 'DEVIATION', a_max, a_counts
+    elif rolling_verdict == 'BASELINE':
+        verdict, max_sev, counts = 'BASELINE', r_max, r_counts
+    elif rolling_verdict == 'DRIFT':
+        verdict, max_sev, counts = 'DRIFT', r_max, r_counts
+    else:
+        verdict = 'COMPLIANT' if authorized_verdict == 'COMPLIANT' else 'NO_DRIFT'
+        max_sev, counts = 'none', {s: 0 for s in SEV_RANK}
+
+    auth_meta = {}
+    if authorized_ref is not None:
+        auth_meta = authorized_ref.get('authorization', {})
+
     report = {
         'verdict': verdict,
         'max_severity': max_sev,
         'counts': counts,
         'pipe_key': snap['pipe_key'],
-        'branch': snap['branch'],
         'pipeline_name': snap['pipeline_name'],
         'pipeline_id': snap['pipeline_id'],
         'execution_id': snap['execution_id'],
         'run_sequence': snap['run_sequence'],
         'captured_at': snap['captured_at'],
         'yaml_sha256': snap['yaml_sha256'],
-        'prior_captured_at': prior['captured_at'] if prior else None,
-        'prior_run_sequence': prior.get('run_sequence') if prior else None,
-        'prior_yaml_sha256': prior['yaml_sha256'] if prior else None,
         'monitored_steps': len(snap['steps']),
         'monitored_stages': len(snap['stages']),
         'templates': snap['templates'],
-        'prior_templates': prior.get('templates', {}) if prior else {},
-        'findings': findings,
+        # Rolling block (since last run)
+        'rolling': {
+            'verdict': rolling_verdict,
+            'max_severity': r_max,
+            'counts': r_counts,
+            'prior_captured_at': rolling_ref['captured_at'] if rolling_ref else None,
+            'prior_run_sequence': rolling_ref.get('run_sequence') if rolling_ref else None,
+            'prior_yaml_sha256': rolling_ref['yaml_sha256'] if rolling_ref else None,
+            'prior_templates': rolling_ref.get('templates', {}) if rolling_ref else {},
+            'findings': rolling_findings,
+        },
+        # Authorized-baseline block (since ATO/approval) — the compliance signal
+        'authorized': {
+            'verdict': authorized_verdict,
+            'max_severity': a_max,
+            'counts': a_counts,
+            'authorization': auth_meta,
+            'baseline_captured_at': authorized_ref['captured_at'] if authorized_ref else None,
+            'baseline_run_sequence': authorized_ref.get('run_sequence') if authorized_ref else None,
+            'baseline_yaml_sha256': authorized_ref['yaml_sha256'] if authorized_ref else None,
+            'baseline_templates': authorized_ref.get('templates', {}) if authorized_ref else {},
+            'findings': authorized_findings,
+        },
+        # Back-compat flat fields used by older renderer paths
+        'prior_captured_at': rolling_ref['captured_at'] if rolling_ref else None,
+        'prior_run_sequence': rolling_ref.get('run_sequence') if rolling_ref else None,
+        'prior_yaml_sha256': rolling_ref['yaml_sha256'] if rolling_ref else None,
+        'prior_templates': rolling_ref.get('templates', {}) if rolling_ref else {},
+        'findings': rolling_findings,
     }
     json.dump(report, open(f'{BASE}/drift-report.json', 'w'), indent=2, ensure_ascii=False)
     json.dump(snap, open(f'{BASE}/drift-state-new.json', 'w'), indent=2, ensure_ascii=False)
@@ -369,24 +442,36 @@ def main():
     with open(f'{BASE}/drift-history-append.jsonl', 'w') as h:
         h.write(json.dumps({'ts': snap['captured_at'], 'run': snap['run_sequence'],
                             'execution': snap['execution_id'], 'verdict': verdict,
-                            'max_severity': max_sev, 'counts': counts,
+                            'rolling_verdict': rolling_verdict, 'rolling_max_severity': r_max,
+                            'authorized_verdict': authorized_verdict, 'authorized_max_severity': a_max,
+                            'rolling_counts': r_counts, 'authorized_counts': a_counts,
                             'yaml_sha256': snap['yaml_sha256']}) + '\n')
-        for f in findings:
-            h.write(json.dumps({'ts': snap['captured_at'], 'run': snap['run_sequence'], **f}) + '\n')
+        for f in rolling_findings:
+            h.write(json.dumps({'ts': snap['captured_at'], 'run': snap['run_sequence'],
+                                'scope': 'rolling', **f}) + '\n')
+        for f in authorized_findings:
+            h.write(json.dumps({'ts': snap['captured_at'], 'run': snap['run_sequence'],
+                                'scope': 'authorized', **f}) + '\n')
 
     with open('/tmp/drift-env.sh', 'a') as f:
         f.write(f'export VERDICT="{verdict}"\n')
         f.write(f'export MAX_SEVERITY="{max_sev}"\n')
+        f.write(f'export ROLLING_VERDICT="{rolling_verdict}"\n')
+        f.write(f'export AUTHORIZED_VERDICT="{authorized_verdict}"\n')
         f.write(f'export YAML_SHA256="{snap["yaml_sha256"]}"\n')
 
     print(f"VERDICT={verdict}")
     print(f"MAX_SEVERITY={max_sev}")
-    print(f"COUNTS={json.dumps(counts)}")
+    print(f"ROLLING={rolling_verdict} (max {r_max}, counts {json.dumps(r_counts)})")
+    print(f"AUTHORIZED={authorized_verdict} (max {a_max}, counts {json.dumps(a_counts)})")
+    if auth_meta:
+        print(f"AUTHORIZATION={json.dumps(auth_meta)}")
     print(f"MONITORED steps={len(snap['steps'])} stages={len(snap['stages'])} templates={len(snap['templates'])}")
     print(f"YAML_SHA256={snap['yaml_sha256']}")
-    print(f"TEMPLATES_REFERENCED={json.dumps(snap['templates'])}")
-    for f in findings:
-        print(f"{f['id']} [{f['severity'].upper()}] {f['category']} @ {f['location']}")
+    for f in rolling_findings:
+        print(f"[ROLLING] {f['id']} [{f['severity'].upper()}] {f['category']} @ {f['location']}")
+    for f in authorized_findings:
+        print(f"[AUTHORIZED] {f['id']} [{f['severity'].upper()}] {f['category']} @ {f['location']}")
 
 
 if __name__ == '__main__':
