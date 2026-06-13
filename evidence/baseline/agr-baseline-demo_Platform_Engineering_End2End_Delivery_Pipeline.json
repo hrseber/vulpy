@@ -1,0 +1,719 @@
+{
+  "pipeline_id": "End2End_Delivery_Pipeline",
+  "org": "demo",
+  "project": "Platform_Engineering",
+  "pipe_key": "demo_Platform_Engineering_End2End_Delivery_Pipeline",
+  "yaml_sha256": "565b6ba77f5d803576b1bdf591f700a7f4603e958c60b4302b071487dfbafe6b",
+  "baseline_timestamp": "2026-06-13T02:41:00Z",
+  "assessor_execution_id": "InlP_8WUSOam7LsHD_3Wgg",
+  "policy_dir": "evidence/policies_InlP_8WUSOam7LsHD_3Wgg",
+  "pass1": {
+    "passed": 12,
+    "failed": 3,
+    "unable": 0,
+    "na": 0,
+    "score_pct": "80%",
+    "passed_sub": "Checks 1-9, 12-14: SBOM Gen, SBOM Policy, Signing, SAST, SCA, Secrets, Container, IaC, OPA-Run, Approval, Audit, Evidence",
+    "failed_sub": "2 CRITICAL  1 HIGH  (Checks 10, 11, 15)",
+    "checks": [
+      {
+        "num": "1",
+        "name": "SBOM Generation",
+        "group": "Supply Chain",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC7.1"
+        ],
+        "nist": [
+          "SR-4",
+          "SA-11"
+        ],
+        "slsa": [
+          "L1"
+        ],
+        "cato": [
+          "3.1"
+        ],
+        "pci": [
+          "6.3.2"
+        ],
+        "fix": "PASS: <code>SscaOrchestration / SBOM_Generation</code> step present in CI stage using Syft (SPDX-JSON format). Attestation enabled via cosign with <code>Platform_Demo_Cosign_Key</code>."
+      },
+      {
+        "num": "2",
+        "name": "SBOM Policy Enforcement",
+        "group": "Supply Chain",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC7.2"
+        ],
+        "nist": [
+          "SR-3",
+          "SR-11"
+        ],
+        "slsa": [
+          "L2"
+        ],
+        "cato": [
+          "3.1"
+        ],
+        "pci": [
+          "6.3.1"
+        ],
+        "fix": "PASS: <code>SBOM_Policy_Enforcement</code> template step applied at Deploy_to_Dev, Deploy_to_QA, and Deploy_to_Prod stages. SBOM_Policies policy set (type: sbom, enabled: true) active at project scope."
+      },
+      {
+        "num": "3",
+        "name": "Artifact Signing",
+        "group": "Supply Chain",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC6.1"
+        ],
+        "nist": [
+          "SI-7",
+          "SA-12"
+        ],
+        "slsa": [
+          "L2",
+          "L3"
+        ],
+        "cato": [
+          "3.1"
+        ],
+        "pci": [
+          "6.2"
+        ],
+        "fix": "PASS: <code>SscaArtifactSigning / Artifact_Signing</code> step uses cosign with <code>Platform_Demo_Cosign_Key</code>. SLSA provenance step (<code>provenance / SLSA_Generation</code>) also present. Artifact verification at all deployment stages via <code>SscaArtifactVerification</code>."
+      },
+      {
+        "num": "4",
+        "name": "SAST",
+        "group": "Security Testing",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC7.1",
+          "CC8.1"
+        ],
+        "nist": [
+          "SA-11(1)",
+          "RA-5"
+        ],
+        "slsa": [],
+        "cato": [
+          "3.1"
+        ],
+        "pci": [
+          "6.2.3",
+          "6.5.1"
+        ],
+        "fix": "PASS: Multiple SAST scanners present: <code>HarnessSAST</code> (orchestration), <code>Wiz SAST</code> (template), <code>SonarQube SAST</code> (ingestion), <code>Snyk SAST</code> (ingestion), <code>Semgrep</code> (orchestration). Rich coverage across 5 SAST tools."
+      },
+      {
+        "num": "5",
+        "name": "SCA",
+        "group": "Security Testing",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC7.1"
+        ],
+        "nist": [
+          "RA-5",
+          "SR-4"
+        ],
+        "slsa": [
+          "L1"
+        ],
+        "cato": [
+          "3.1"
+        ],
+        "pci": [
+          "6.3.1"
+        ],
+        "fix": "PASS: SCA scanners present: <code>BlackDuck</code> (ingestion) and <code>Snyk SCA</code> (ingestion) in parallel SCA step group. <code>HarnessSCA</code> also runs on container image post-build."
+      },
+      {
+        "num": "6",
+        "name": "Secret Detection",
+        "group": "Security Testing",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC6.1",
+          "CC6.7"
+        ],
+        "nist": [
+          "IA-5",
+          "SC-28"
+        ],
+        "slsa": [],
+        "cato": [
+          "1.0"
+        ],
+        "pci": [
+          "8.2",
+          "8.6"
+        ],
+        "fix": "PASS: <code>Gitleaks</code> step is the FIRST step in the CI stage, running in orchestration mode against the repository. Secret scan results propagated to Jira/ServiceNow update fields."
+      },
+      {
+        "num": "7",
+        "name": "Container Scanning",
+        "group": "Security Testing",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC7.1"
+        ],
+        "nist": [
+          "RA-5",
+          "SI-2"
+        ],
+        "slsa": [],
+        "cato": [
+          "3.1"
+        ],
+        "pci": [
+          "6.3.1",
+          "6.2.4"
+        ],
+        "fix": "PASS: Pipeline contains <code>BuildAndPushDockerRegistry</code> step and container scanning is present via <code>HarnessSCA</code> (orchestration, container), <code>Wiz Container</code> (orchestration), <code>AquaTrivy</code> (orchestration), and <code>JFrog Xray</code> (ingestion, conditionally disabled). Multiple container scanners provide deep coverage."
+      },
+      {
+        "num": "8",
+        "name": "IaC Scanning",
+        "group": "Security Testing",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC6.1",
+          "CC7.1"
+        ],
+        "nist": [
+          "CM-2",
+          "CM-6"
+        ],
+        "slsa": [],
+        "cato": [
+          "3.1"
+        ],
+        "pci": [
+          "2.2"
+        ],
+        "fix": "PASS: Pipeline contains IACM stage (<code>Dev_Cluster_Up</code>) with Terraform init/plan/apply. <code>Wiz IaC</code> template step scans IaC in <code>/harness/iacm/terraform</code> during the provision stage."
+      },
+      {
+        "num": "9",
+        "name": "OPA Policy Set (On Run)",
+        "group": "Governance",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC5.2",
+          "CC8.1"
+        ],
+        "nist": [
+          "CA-7",
+          "CM-3"
+        ],
+        "slsa": [],
+        "cato": [
+          "3.2"
+        ],
+        "pci": [
+          "6.5",
+          "12.1"
+        ],
+        "fix": "PASS: Multiple pipeline-type policy sets with On Run gate active and confirmed passing in current execution (governanceMetadata status=pass, evaluation_id=61023230): <strong>Only Approved Docker Registries</strong>, <strong>Warn - Forbidden Commands in Run Steps</strong>, <strong>Security Scan Required (Wiz_Scan_Required)</strong>, <strong>Approval Required for Prod Deployments</strong>."
+      },
+      {
+        "num": "10",
+        "name": "OPA Policy Set (On Save)",
+        "group": "Governance",
+        "severity": "high",
+        "status": "fail",
+        "soc2": [
+          "CC8.1"
+        ],
+        "nist": [
+          "CM-3",
+          "CM-4"
+        ],
+        "slsa": [],
+        "cato": [
+          "3.2"
+        ],
+        "pci": [
+          "6.4"
+        ],
+        "fix": "FAIL: No pipeline-type policy set with an <strong>On Save</strong> gate was found in the project policy set list. All confirmed active pipeline policy sets (<code>Only_Approved_Docker_Registries</code>, <code>Warn_Forbidden_Commands_in_Run_Steps</code>, <code>Wiz_Scan_Required</code>, <code>Approval_Required_for_Prod_Deployments</code>) are On Run only. <strong>Fix:</strong> In Settings \u2192 Governance \u2192 Policy Sets, edit at least one pipeline policy set to add an <code>On Save</code> event so that unsafe pipeline configurations are rejected at authoring time. Recommended: attach <code>Enforce_Golden_Build_Template_for_Boutique_Frontend</code> (currently disabled) as an On Save policy. Policy: <code>opa_on_save_gate.rego</code>"
+      },
+      {
+        "num": "11",
+        "name": "Severity Thresholds",
+        "group": "Governance",
+        "severity": "critical",
+        "status": "fail",
+        "soc2": [
+          "CC7.2",
+          "CC7.3"
+        ],
+        "nist": [
+          "RA-5",
+          "SI-2"
+        ],
+        "slsa": [],
+        "cato": [
+          "3.2"
+        ],
+        "pci": [
+          "6.3.1",
+          "11.3"
+        ],
+        "fix": "FAIL: STO scanner steps are present but most lack explicit <code>fail_on_severity</code> configuration or have it set to non-blocking values. Specific issues: <code>Snyk SAST</code> has <code>fail_on_severity: none</code> (explicitly disabled). <code>AquaTrivy</code> has no <code>fail_on_severity</code> set with <code>type: Ignore</code> failure strategy. <code>BlackDuck</code> has <code>type: MarkAsSuccess</code> failure strategy. <code>Wiz Container</code> has <code>type: Ignore</code>. This means Critical/High CVEs can ship without blocking. <strong>Fix:</strong> Set <code>fail_on_severity: critical</code> on all STO orchestration steps and remove the blanket <code>MarkAsSuccess</code> / <code>Ignore</code> failure strategies, or replace with conditional waiver logic. Policy: <code>sto_severity_threshold.rego</code>"
+      },
+      {
+        "num": "12",
+        "name": "Approval Gate Before Prod",
+        "group": "Deployment",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC5.2",
+          "CC8.1"
+        ],
+        "nist": [
+          "CM-3(2)",
+          "CA-6"
+        ],
+        "slsa": [],
+        "cato": [
+          "3.2"
+        ],
+        "pci": [
+          "6.4.1",
+          "6.4.2"
+        ],
+        "fix": "PASS: Dedicated <code>Approval</code> stage (type: Approval) with Jira Approval and ServiceNow Approval steps sits between Deploy_to_QA and Deploy_to_Prod. Both approval steps validate ITSM ticket status before allowing progression to the production deployment stage."
+      },
+      {
+        "num": "13",
+        "name": "Audit Trail",
+        "group": "Audit",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC4.1",
+          "CC7.3"
+        ],
+        "nist": [
+          "AU-2",
+          "AU-3",
+          "AU-6"
+        ],
+        "slsa": [
+          "L1"
+        ],
+        "cato": [
+          "1.0"
+        ],
+        "pci": [
+          "10.1",
+          "10.2"
+        ],
+        "fix": "PASS: Harness platform-level audit trail is enabled at account scope (confirmed via audit_event resource type availability). Pipeline execution history, governance policy evaluations, and ITSM ticket creation/update steps provide comprehensive audit evidence per execution."
+      },
+      {
+        "num": "14",
+        "name": "Evidence Export",
+        "group": "Audit",
+        "severity": "na",
+        "status": "pass",
+        "soc2": [
+          "CC4.1",
+          "CC7.4"
+        ],
+        "nist": [
+          "CA-2",
+          "CA-7(1)"
+        ],
+        "slsa": [
+          "L2"
+        ],
+        "cato": [
+          "1.0"
+        ],
+        "pci": [
+          "12.4"
+        ],
+        "fix": "PASS: STO scan results are persisted to Harness STO findings store. SBOM is generated and attested by SscaOrchestration step (persisted to Harness SCS). OPA policy evaluations are recorded in governance metadata. Jira/ServiceNow tickets capture security scan summaries per execution. AGR Inline Agent (this step) exports full evidence to GitHub. Note: Evidence export relies on the pipeline's own scan/SBOM/ITSM steps, not only on this AGR step."
+      },
+      {
+        "num": "15",
+        "name": "Build Tool Chain Integrity",
+        "group": "Supply Chain",
+        "severity": "critical",
+        "status": "fail",
+        "soc2": [
+          "CC7.1",
+          "CC8.1"
+        ],
+        "nist": [
+          "SA-12",
+          "SR-3",
+          "SR-4",
+          "SR-11",
+          "SI-7"
+        ],
+        "slsa": [
+          "L3"
+        ],
+        "cato": [
+          "3.1"
+        ],
+        "pci": [
+          "6.2"
+        ],
+        "fix": "<strong>FAIL (CRITICAL):</strong> Three Tier-1 build tool integrity issues detected. <br><br>1. <code>BuildAndPushDockerRegistry / Push_Artifact</code>: No builder image version or digest pinning specified in the step spec. The Harness CI hosted runner selects the Docker build environment version. No cosign verification of the builder image. <strong>SolarWinds-class risk</strong> \u2014 a compromised build environment injects malicious code that no downstream scanner can detect because the binary is clean by checksum but the tool that produced it was compromised. <br><br>2. <code>AI_Verify</code> step in Deploy_to_Prod uses image <code>shubhendupatidar/ai-verify-plugin:4.0</code> \u2014 floating semver tag, no digest pin. This is a Tier-1 tool that runs in the production deployment stage. <br><br>3. <code>HarnessSCA_1</code> container scan uses <code>tag: latest</code> for the target image reference \u2014 while this is the scan target rather than the scanner tool itself, it indicates floating reference hygiene issues. <br><br><strong>Fix:</strong> Pin <code>BuildAndPushDockerRegistry</code> builder to a verified digest. Replace <code>shubhendupatidar/ai-verify-plugin:4.0</code> with <code>shubhendupatidar/ai-verify-plugin@sha256:&lt;digest&gt;</code> and add cosign verification. Policy: <code>build_tool_integrity.rego</code>"
+      }
+    ]
+  },
+  "policies": [
+    {
+      "name": "opa_on_save_gate.rego",
+      "desc": "Require at least one pipeline-type policy set with On Save event gate",
+      "severity": "high",
+      "ctrls": [
+        "CM-3",
+        "CM-4"
+      ],
+      "frameworks": [
+        [
+          "fw-soc2",
+          "SOC2 CC8.1"
+        ],
+        [
+          "fw-nist",
+          "NIST CM-3/CM-4"
+        ],
+        [
+          "fw-cato",
+          "cATO 3.2"
+        ],
+        [
+          "fw-pci",
+          "PCI 6.4"
+        ]
+      ],
+      "critical": false,
+      "path": "https://github.com/hrseber/vulpy/blob/main/evidence/policies_InlP_8WUSOam7LsHD_3Wgg/opa_on_save_gate.rego"
+    },
+    {
+      "name": "sto_severity_threshold.rego",
+      "desc": "All STO scanner steps must have fail_on_severity set to critical or high",
+      "severity": "critical",
+      "ctrls": [
+        "RA-5",
+        "SI-2"
+      ],
+      "frameworks": [
+        [
+          "fw-soc2",
+          "SOC2 CC7.2/CC7.3"
+        ],
+        [
+          "fw-nist",
+          "NIST RA-5/SI-2"
+        ],
+        [
+          "fw-cato",
+          "cATO 3.2"
+        ],
+        [
+          "fw-pci",
+          "PCI 6.3.1/11.3"
+        ]
+      ],
+      "critical": true,
+      "path": "https://github.com/hrseber/vulpy/blob/main/evidence/policies_InlP_8WUSOam7LsHD_3Wgg/sto_severity_threshold.rego"
+    },
+    {
+      "name": "build_tool_integrity.rego",
+      "desc": "Tier-1 build tools must use pinned image digests; floating tags and personal Docker Hub images are forbidden in production paths",
+      "severity": "critical",
+      "ctrls": [
+        "SA-12",
+        "SR-3",
+        "SR-4",
+        "SI-7"
+      ],
+      "frameworks": [
+        [
+          "fw-soc2",
+          "SOC2 CC7.1/CC8.1"
+        ],
+        [
+          "fw-nist",
+          "NIST SA-12/SR-3/SR-4/SI-7"
+        ],
+        [
+          "fw-slsa",
+          "SLSA L3"
+        ],
+        [
+          "fw-cato",
+          "cATO 3.1"
+        ],
+        [
+          "fw-pci",
+          "PCI 6.2"
+        ]
+      ],
+      "critical": true,
+      "path": "https://github.com/hrseber/vulpy/blob/main/evidence/policies_InlP_8WUSOam7LsHD_3Wgg/build_tool_integrity.rego"
+    },
+    {
+      "name": "sbom_generation.rego",
+      "desc": "Require SscaOrchestration SBOM step after build/push with attestation enabled",
+      "severity": "high",
+      "ctrls": [
+        "SR-4",
+        "SA-11"
+      ],
+      "frameworks": [
+        [
+          "fw-slsa",
+          "SLSA L1"
+        ],
+        [
+          "fw-nist",
+          "NIST SR-4/SA-11"
+        ],
+        [
+          "fw-soc2",
+          "SOC2 CC7.1"
+        ]
+      ],
+      "critical": false,
+      "path": "https://github.com/hrseber/vulpy/blob/main/evidence/policies_InlP_8WUSOam7LsHD_3Wgg/sbom_generation.rego"
+    }
+  ],
+  "remediations": [
+    {
+      "id": "REM-01",
+      "title": "Enforce Severity Thresholds on All STO Scanners \u2014 CRITICAL P0",
+      "closes": "SOC2 CC7.2/CC7.3 | NIST RA-5/SI-2 | cATO 3.2 | PCI 6.3.1/11.3",
+      "diff_label": "YAML diff \u2014 set fail_on_severity: critical on STO steps; remove MarkAsSuccess/Ignore failure strategies",
+      "diff_lines": [
+        [
+          "context",
+          "              - step:\n                  type: AquaTrivy\n                  name: Aqua Trivy\n                  identifier: Aqua_Trivy\n                  spec:"
+        ],
+        [
+          "context",
+          "                    advanced:\n                      log:\n                        level: info"
+        ],
+        [
+          "add",
+          "                      fail_on_severity: critical"
+        ],
+        [
+          "context",
+          "                    failureStrategies: []"
+        ],
+        [
+          "context",
+          "              - step:\n                  type: Snyk\n                  name: Snyk SAST\n                  identifier: Snyk_SAST\n                  spec:\n                    advanced:"
+        ],
+        [
+          "context",
+          "                      log:\n                        level: info"
+        ],
+        [
+          "add",
+          "                      fail_on_severity: critical  # was: none \u2014 change to critical"
+        ],
+        [
+          "context",
+          "              - step:\n                  type: BlackDuck\n                  ...\n                  failureStrategies:"
+        ],
+        [
+          "add",
+          "                    # Remove MarkAsSuccess failure strategy to allow fail_on_severity to gate"
+        ]
+      ]
+    },
+    {
+      "id": "REM-02",
+      "title": "Add OPA On Save Policy Gate \u2014 HIGH P1",
+      "closes": "SOC2 CC8.1 | NIST CM-3/CM-4 | cATO 3.2 | PCI 6.4",
+      "diff_label": "Action: In Harness UI \u2192 Settings \u2192 Governance \u2192 Policy Sets \u2192 Edit any active pipeline policy set \u2192 Add 'On Save' event",
+      "diff_lines": [
+        [
+          "context",
+          "# No YAML diff \u2014 OPA policy sets are configured in Harness Settings, not in pipeline YAML."
+        ],
+        [
+          "add",
+          "# Action: Settings \u2192 Governance \u2192 Policy Sets \u2192 'Approval Required for Prod Deployments'"
+        ],
+        [
+          "add",
+          "#         \u2192 Add event: On Save \u2192 Error and Exit"
+        ],
+        [
+          "add",
+          "# Or enable: 'Enforce_Golden_Build_Template_for_Boutique_Frontend' with On Save gate"
+        ]
+      ]
+    },
+    {
+      "id": "REM-03",
+      "title": "Pin AI Verify Tool Image Digest \u2014 CRITICAL P0",
+      "closes": "SOC2 CC7.1/CC8.1 | NIST SA-12/SR-3/SI-7 | SLSA L3 | cATO 3.1 | PCI 6.2",
+      "diff_label": "YAML diff \u2014 replace floating tag with pinned digest in Deploy_to_Prod / AI_Based_Verification step",
+      "diff_lines": [
+        [
+          "context",
+          "                        - step:\n                            type: AiVerify\n                            name: AI Verify\n                            identifier: AI_Verify\n                            spec:\n                              connectorRef: CVDockerconnector"
+        ],
+        [
+          "add",
+          "                              image: shubhendupatidar/ai-verify-plugin@sha256:<DIGEST>  # was: :4.0 floating tag"
+        ],
+        [
+          "context",
+          "                              shell: Sh"
+        ],
+        [
+          "add",
+          "# ALSO: Add a preceding cosign verify step before AI_Verify to attest the image signature"
+        ]
+      ]
+    }
+  ],
+  "nist_800_53": [
+    {
+      "id": "SR-4",
+      "label": "Provenance",
+      "status": "covered"
+    },
+    {
+      "id": "SR-3",
+      "label": "Supply Chain Controls",
+      "status": "covered"
+    },
+    {
+      "id": "SR-11",
+      "label": "Component Authenticity",
+      "status": "covered"
+    },
+    {
+      "id": "SA-11",
+      "label": "Dev Security Testing",
+      "status": "covered"
+    },
+    {
+      "id": "SA-11(1)",
+      "label": "SAST",
+      "status": "covered"
+    },
+    {
+      "id": "SA-12",
+      "label": "Supply Chain Protection",
+      "status": "gap"
+    },
+    {
+      "id": "SI-7",
+      "label": "Software/Firmware Integrity",
+      "status": "gap"
+    },
+    {
+      "id": "SI-2",
+      "label": "Flaw Remediation",
+      "status": "gap"
+    },
+    {
+      "id": "RA-5",
+      "label": "Vulnerability Scanning",
+      "status": "covered"
+    },
+    {
+      "id": "IA-5",
+      "label": "Authenticator Mgmt",
+      "status": "covered"
+    },
+    {
+      "id": "SC-28",
+      "label": "Protection at Rest",
+      "status": "covered"
+    },
+    {
+      "id": "CM-2",
+      "label": "Baseline Config",
+      "status": "covered"
+    },
+    {
+      "id": "CM-6",
+      "label": "Config Settings",
+      "status": "covered"
+    },
+    {
+      "id": "CM-3",
+      "label": "Config Change Control",
+      "status": "covered"
+    },
+    {
+      "id": "CM-3(2)",
+      "label": "Change Control (Auth)",
+      "status": "covered"
+    },
+    {
+      "id": "CM-4",
+      "label": "Impact Analysis",
+      "status": "gap"
+    },
+    {
+      "id": "CA-7",
+      "label": "Continuous Monitoring",
+      "status": "covered"
+    },
+    {
+      "id": "CA-7(1)",
+      "label": "Automated Monitoring",
+      "status": "covered"
+    },
+    {
+      "id": "CA-2",
+      "label": "Assessments",
+      "status": "covered"
+    },
+    {
+      "id": "CA-6",
+      "label": "Auth Boundaries",
+      "status": "covered"
+    },
+    {
+      "id": "AU-2",
+      "label": "Event Logging",
+      "status": "covered"
+    },
+    {
+      "id": "AU-3",
+      "label": "Content of Records",
+      "status": "covered"
+    },
+    {
+      "id": "AU-6",
+      "label": "Review & Analysis",
+      "status": "covered"
+    }
+  ],
+  "coverage_covered": 18,
+  "coverage_total": 23
+}
