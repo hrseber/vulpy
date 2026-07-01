@@ -1,0 +1,34 @@
+pipeline:
+  name: Rudy Levi
+  identifier: Rudy_Levi
+  projectIdentifier: NIWC_RAISE_Workshop
+  orgIdentifier: Self_Service
+  tags: {}
+  stages:
+    - stage:
+        name: Rudy
+        identifier: Rudy
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: false
+          caching:
+            enabled: true
+            override: false
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run_1
+                  identifier: Run_1
+                  spec:
+                    shell: Sh
+                    command: eccho "hello Levi"
