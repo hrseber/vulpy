@@ -31,4 +31,4 @@ pipeline:
                   identifier: Run_1
                   spec:
                     shell: Sh
-                    command: eccho "hello Levi"
+                    command: eccho "hello Levi annd Aaron"
